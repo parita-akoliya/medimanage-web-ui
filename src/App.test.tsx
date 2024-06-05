@@ -1,8 +1,9 @@
 import React from 'react';
-import { create } from 'react-test-renderer';
+import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
-  const component = create(<App />);
-  const instance = component.root;
+test('renders App component', () => {
+  render(<App />);
+  const appElement = screen.getByTestId('app');
+  expect(appElement).toBeInTheDocument();
 });
