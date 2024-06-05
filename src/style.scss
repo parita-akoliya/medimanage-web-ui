@@ -1,0 +1,8 @@
+$primary: #6F6DE0;
+$primary-hover: darken($primary, 10%);
+$primary-focus: lighten($primary, 20%);
+@import '~bootstrap/scss/bootstrap.scss';
+
+.btn-primary {
+    color: white;
+}
