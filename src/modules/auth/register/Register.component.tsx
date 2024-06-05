@@ -60,7 +60,7 @@ class RegisterComponent extends Component<RegisterProps, RegisterState> {
     } as Pick<RegisterState, keyof RegisterState>);
   };
 
-  handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const {
       firstName,
@@ -114,7 +114,7 @@ class RegisterComponent extends Component<RegisterProps, RegisterState> {
         password
 
       };
-      this.props.registerUser(userData);
+      await this.props.registerUser(userData);
       this.props.handleRegisterClick();
     } else {
       this.setState({ errors });
