@@ -117,7 +117,7 @@ class ResetPassword extends Component<ResetPasswordProps, ResetPasswordState> {
                 />
                 <Form.Control.Feedback type="invalid">{errors.confirmPassword}</Form.Control.Feedback>
               </Form.Group>
-              <Button variant="primary" type="submit" className='forgot-password-button'>
+              <Button variant="primary" type="submit" className='forgot-password-button' data-testid="reset-password-button">
                 Reset Password
               </Button>
             </Form>
