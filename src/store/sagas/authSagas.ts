@@ -15,6 +15,9 @@ import { Actions, CallbackFunctions } from '../../shared/models/Actions';
 import authApi from '../../shared/api/authApi';
 import { FORGOT_PASSWORD_REQUEST, LOGIN_USER_REQUEST, REGISTER_PATIENT_REQUEST, RESET_PASSWORD_REQUEST, VERIFY_OTP_REQUEST } from '../types/authTypes';
 import { toast } from 'react-toastify';
+import CryptoJS from 'crypto-js';
+
+const SECRET_KEY = 'MEDIMANAGE-AUTH'
 
 function handleToast(message: string, type: string) {
   if (type === 'success') {
@@ -32,10 +35,15 @@ function* handleCallbacks(callbacks: CallbackFunctions | void, type: string, ...
   }
 }
 
+function encryptBody(obj: any){
+  return CryptoJS.AES.encrypt(JSON.stringify(obj), SECRET_KEY).toString();
+}
+
 function* loginSaga(action: Actions): any {
   try {
     const { email, password } = action.payload;
-    const response = yield call(authApi.login, { email, password });
+    const encryptedBody = encryptBody({ email, password })
+    const response = yield call(authApi.login, encryptedBody);
     yield call(handleToast, response.data.message || response.data.data.message || 'Login successful. Otp sent.', 'success');
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
     yield put(loginSuccess(response.data.verify_user, email));
@@ -49,7 +57,8 @@ function* loginSaga(action: Actions): any {
 function* registerPatientSaga(action: Actions) {
   try {
     const userData = action.payload;
-    yield call(authApi.registerPatient, userData);
+    const encryptedBody = encryptBody(userData)
+    yield call(authApi.registerPatient, encryptedBody);
     yield call(handleToast, 'Registration successful.', 'success');
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
     yield put(registerSuccess());
@@ -92,7 +101,8 @@ function* forgotPasswordSaga(action: Actions): any {
 function* resetPasswordSaga(action: Actions): any {
   try {
     const { token, newPassword } = action.payload;
-    const response = yield call(authApi.resetPassword, token, newPassword);
+    const encryptedBody = encryptBody({token, newPassword})
+    const response = yield call(authApi.resetPassword, encryptedBody);
     yield call(handleToast, response.data.message || response.data.data.message || 'Password reset successful. Please Login now', 'success');
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
     yield put(resetPasswordSuccess(response.success));
