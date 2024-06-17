@@ -31,7 +31,6 @@ class SidebarContextProvider extends Component<
   }
 
   toggleSidebar = () => {
-    console.log("innnnnnnnnn");
     
     this.setState((prevState) => ({
       isOpen: !prevState.isOpen,

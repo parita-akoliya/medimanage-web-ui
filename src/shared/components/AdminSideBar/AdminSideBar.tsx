@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Import Link and useNavigate from react-router-dom
+import { Link, useNavigate } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 import classes from './AdminSideBar.module.scss';
 import AdminSideBarNav from './AdminSideBarNav';
@@ -8,8 +8,8 @@ import { connect } from 'react-redux';
 import { logoutRequest } from '../../../store/actions/authActions';
 
 interface AdminSideBarProps {
-  width: number; // Assuming width is passed as a prop from useWindowSize hook
-  navigate: ReturnType<typeof useNavigate>; // Use the correct type for navigate
+  width: number;
+  navigate: ReturnType<typeof useNavigate>;
   logoutUser: () => void;
 }
 
@@ -34,7 +34,6 @@ class AdminSideBar extends Component<AdminSideBarProps, AdminSideBarState> {
   };
 
   logoutHandler = () => {
-    console.log('Logging out...');
     this.props.logoutUser();
   };
 
