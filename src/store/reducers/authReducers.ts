@@ -22,7 +22,6 @@ export interface AuthState {
 }
 const token = localStorage.getItem('token');
 const isAuthenticated = token !== null && token.length > 0;
-console.log(token, isAuthenticated);
 
 const initialState: AuthState = {
     isAuthenticated: isAuthenticated,

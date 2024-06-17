@@ -42,7 +42,6 @@ class AdminAuthScreen extends Component<AdminAuthScreenProps, AdminAuthScreenSta
   render() {
     const { isAuthenticated } = this.props;
     const { isLogin, showForgotPassword, redirectedThroughBack } = this.state;
-    console.log(isAuthenticated, isLogin, showForgotPassword, redirectedThroughBack);
     
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">

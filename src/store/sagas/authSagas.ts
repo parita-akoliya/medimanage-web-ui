@@ -77,7 +77,6 @@ function* verifyOtpSaga(action: Actions): any {
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data.role);
     yield put(verifyOtpSuccess(response.data.token, response.data.role));
   } catch (error: any) {
-    console.log(error);
     yield call(handleToast, error?.response?.data?.error || error?.response?.data?.message || `Otp verification failed. Please try again. Error: ${error.stack}`, 'error');
     yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');
     yield put(verifyOtpFailure(error.message));

@@ -41,8 +41,6 @@ class AuthScreen extends Component<AuthScreenProps, AuthScreenState> {
   };
 
   handleBackFromForgotPassword = () => {
-    console.log("abcbsa");
-    
     this.setState({ showForgotPassword: false, isLogin: true, redirectedThroughBack: true });
   };
 
@@ -53,7 +51,6 @@ class AuthScreen extends Component<AuthScreenProps, AuthScreenState> {
   render() {
     const { isAuthenticated } = this.props;
     const { isLogin, showForgotPassword, redirectedThroughBack } = this.state;
-    console.log(isAuthenticated, isLogin, showForgotPassword, redirectedThroughBack);
     
     return (
       <div className="d-flex justify-content-center align-items-center vh-100">

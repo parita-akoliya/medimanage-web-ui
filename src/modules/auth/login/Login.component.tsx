@@ -64,11 +64,8 @@ class Login extends Component<LoginProps, LoginState> {
             errors.password = 'Password is required';
             isValid = false;
         }
-        console.log("isValid", isValid, email, password);
         
-        if (isValid) {
-            console.log("scvvdfvdf");
-            
+        if (isValid) {            
             onSubmit(email, password, (success: string) => {
                 console.log(success);                
             }, (error: any) => {

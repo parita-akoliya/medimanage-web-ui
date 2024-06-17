@@ -4,7 +4,6 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { routes } from './Routes';
 
-// Recursive function to render nested routes
 const renderRoutes = (routes: RouteObject[]): JSX.Element[] => {
   return routes.map((route, index) => (
     <Route key={index} path={route.path} element={route.element}>
