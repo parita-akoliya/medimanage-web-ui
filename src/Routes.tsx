@@ -41,8 +41,8 @@ export const routes: RouteObject[] = [
     children: DoctorRoutes,
   },
   {
-    path: '/admin/',
-    element: <ProtectedRoute component={Root} />,
+    path: '/admin',
+    element: <UnProtectedRoute component={Root} />,
     children: AdminRoutes,
   }
 ];

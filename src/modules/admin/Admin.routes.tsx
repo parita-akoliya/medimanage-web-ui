@@ -1,10 +1,21 @@
-import React from 'react';
 import { RouteObject } from 'react-router-dom';
-import AdminDashboard from './dashboard/Dashboard.component';
+import AdminDashboardLayout from './AdminDashboardLayout/AdminDashboardLayout.component';
+import BlankPageComponent from './Dashboard/Dashboard.component';
+import ProfileComponent from './Profile/Profile.component';
+
+const adminChildren: RouteObject[] = [
+  { path: 'dashboard', element: <BlankPageComponent page="dashboard" /> },
+  { path: 'users', element: <ProfileComponent  /> },
+  { path: 'clinics', element: <BlankPageComponent page="doctors" /> },
+  { path: 'settings', element: <BlankPageComponent page="settings" /> },
+  { path: 'profile', element: <BlankPageComponent page="profile" /> },
+  { path: '', element: <BlankPageComponent page="empty" /> }
+];
 
 export const AdminRoutes: RouteObject[] = [
   {
-    path: 'dashboard',
-    element: <AdminDashboard />,
+    path: '/admin',
+    element: <AdminDashboardLayout />,
+    children: adminChildren
   },
 ];

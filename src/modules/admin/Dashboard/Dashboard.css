@@ -1,0 +1,73 @@
+.custom-card {
+    border: unset !important;
+    border-bottom: 3px solid #2A3198 !important;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #f7f7f7;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease-in-out;
+  }
+  .table-header{
+    color:#2A3198 !important;
+    border-bottom: unset !important;
+  }
+  
+  .custom-card:hover {
+    transform: translateY(-5px);
+  }
+  
+  .custom-card .card-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .custom-card .icon {
+    color: #2A3198 !important;
+    font-size: 3rem;
+  }
+  
+  .custom-card .card-title {
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color:#7371e1;
+  }
+  .text-left {
+    text-align: left !important;
+  }
+  
+  .custom-card .card-text {
+    margin-top: 0.5rem;
+    color: #666;
+    font-weight: bold;
+  }
+  .table-custom-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: box-shadow 0.3s ease-in-out;
+    margin-bottom: 20px;
+  }
+  
+  .table-custom-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  }
+  .appointment-table th,
+.appointment-table td {
+  text-align: center;
+  vertical-align: middle;
+}
+
+.appointment-table th {
+  background-color: #7371e1 !important;
+  color: white !important;
+}
+
+.appointment-table tbody tr:hover {
+  background-color: #2A3198 !important;
+  color: #f7f7f7 !important;
+  /* cursor: pointer; */
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}

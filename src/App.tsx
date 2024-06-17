@@ -1,8 +1,17 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { routes } from './Routes';
+import { BrowserRouter as Router, Routes, Route, RouteObject } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { routes } from './Routes';
+
+// Recursive function to render nested routes
+const renderRoutes = (routes: RouteObject[]): JSX.Element[] => {
+  return routes.map((route, index) => (
+    <Route key={index} path={route.path} element={route.element}>
+      {route.children && renderRoutes(route.children)}
+    </Route>
+  ));
+};
 
 const App: React.FC = () => {
   return (
@@ -22,13 +31,7 @@ const App: React.FC = () => {
       />
       <Router>
         <Routes>
-          {routes.map((route, i) => (
-            <Route data-testid={route.path} path={route.path} element={route.element}>
-              {route.children && route.children.map((childRoute, j) => (
-                <Route data-testid={route.path} key={j} path={childRoute.path} element={childRoute.element} />
-              ))}
-            </Route>
-          ))}
+          {renderRoutes(routes)}
         </Routes>
       </Router>
     </div>

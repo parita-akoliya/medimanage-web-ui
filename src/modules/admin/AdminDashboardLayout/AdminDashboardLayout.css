@@ -1,0 +1,27 @@
+.topHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 10px; /* Adjust padding as needed */
+    
+  }
+.user-info {
+    display: flex;
+    align-items: center;
+    
+  }
+  hr{
+    margin: 0 !important;
+    color: #6F6DE0 !important;
+    margin-bottom: 20px;
+  }
+  .avatar {
+    margin-right: 10px; /* Adjust spacing between avatar and user name */
+  }
+
+  .icon-left {
+    cursor: pointer;
+  }
+  .avatar {
+    margin-right: 10px; /* Adjust spacing between avatar and user name */
+  }
