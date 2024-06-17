@@ -1,12 +1,16 @@
 import api from "./api";
 
 const login = async (credentials: any) => {
-  const response = await api.post('/auth/login', credentials);
+  const formData = new FormData();
+  formData.append('data', credentials)
+  const response = await api.post('/auth/login', formData);
   return response?.data;    
 };
 
 const registerPatient = async (userData: any) => {
-  const response = await api.post('/auth/register/patient', userData);
+  const formData = new FormData();
+  formData.append('data', userData)
+  const response = await api.post('/auth/register/patient', formData);
   return response.data;
 };
 
@@ -20,8 +24,10 @@ const verifyOtp = async (otp: string, email: string) => {
   return response.data;
 };
 
-const resetPassword = async (resetToken: string, newPassword: string) => {
-  const response = await api.post('/auth/reset-password', {token: resetToken, newPassword})
+const resetPassword = async (credentials: any) => {
+  const formData = new FormData();
+  formData.append('data', credentials)
+  const response = await api.post('/auth/reset-password', formData)
   return response.data;
 }
 
