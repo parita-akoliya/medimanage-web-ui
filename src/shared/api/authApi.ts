@@ -1,4 +1,4 @@
-import api from "./api";
+import api, { CustomAxiosRequestConfig } from "./api";
 
 const login = async (credentials: any) => {
   const formData = new FormData();
@@ -13,6 +13,17 @@ const registerPatient = async (userData: any) => {
   const response = await api.post('/auth/register/patient', formData);
   return response.data;
 };
+
+const registerAdmin = async (userData: any) => {
+  const response = await api.post('/auth/register/admin', userData, { useToken: true } as CustomAxiosRequestConfig);
+  return response.data;
+};
+
+const registerDoctor = async (userData: any) => {
+  const response = await api.post('/auth/register/doctor', userData, { useToken: true } as CustomAxiosRequestConfig);
+  return response.data;
+};
+
 
 const forgotPassword = async (email: any) => {
   const response = await api.post('/auth/forgot-password', { email });
@@ -31,6 +42,6 @@ const resetPassword = async (credentials: any) => {
   return response.data;
 }
 
-const authApi = {login, registerPatient, forgotPassword, verifyOtp, resetPassword } 
+const authApi = {login, registerPatient, forgotPassword, verifyOtp, resetPassword, registerAdmin, registerDoctor } 
 
 export default authApi
