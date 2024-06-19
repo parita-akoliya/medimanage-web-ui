@@ -1,71 +1,78 @@
 import React, { Component } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Button } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { logoutRequest } from '../../../store/actions/authActions';
 import { Outlet } from 'react-router-dom';
-import AdminSideBar from '../../../shared/components/AdminSideBar/AdminSideBar';
 import './AdminDashboardLayout.css';
-import { Icon } from '@iconify/react';
-import SidebarContext from '../../../shared/contexts/Sidebar';
+import SideBar from '../../../shared/components/SideBar/SideBar.component';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 interface AdminDashboardLayoutProps {
   logoutUser: () => void;
 }
 
 interface AdminDashboardLayoutState {
+  isOpen: boolean;
+  isMobile: boolean;
 }
 
 class AdminDashboardLayout extends Component<AdminDashboardLayoutProps, AdminDashboardLayoutState> {
-  static contextType = SidebarContext;
-  context!: React.ContextType<typeof SidebarContext>;
+  previousWidth: number;
   constructor(props: AdminDashboardLayoutProps) {
     super(props);
     this.state = {
+      isOpen: true,
+      isMobile: false
     };
+    this.previousWidth = -1
+  }
+
+  componentDidMount() {
+    this.updateWidth();
+    window.addEventListener("resize", this.updateWidth.bind(this));
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("resize", this.updateWidth.bind(this));
+  }
+
+  updateWidth() {
+    const width = window.innerWidth;
+    const widthLimit = 576;
+    const isMobile = width <= widthLimit;
+    const wasMobile = this.previousWidth <= widthLimit;
+    console.log(isMobile, wasMobile, widthLimit);
+    
+    if (isMobile !== wasMobile) {
+      this.setState({
+        isOpen: !isMobile
+      });
+    }
+
+    this.previousWidth = width;
   }
 
   handleLogout = () => {
     this.props.logoutUser();
   };
 
-    openSidebarHandler = () => {
-      
-      const { toggleSidebar } = this.context as any;
-      const { width } = this.props as any;
-      toggleSidebar();
-  
-      if (width <= 768) {
-        document.body.classList.toggle("sidebar__open");
-      }
-    };
+  toggle = () => {
+    console.log("fgfgf");
+
+    this.setState({ isOpen: !this.state.isOpen });
+  };
+
 
   render() {
     return (
       <Container fluid>
         <Row>
-          <Col xs={3} md={2} className="sidebar-col">
-            <AdminSideBar width={120} />
+          <Col xs={3} md={2} className="component sidebar-col">
+            <SideBar />
           </Col>
-          <Col xs={9} md={10} className="main-content-col">
+          <Col xs={8} md={9} className="main-content-col">
             <div className="main-content">
-              <div className='topHeader'>
-              <div className='icon-left'
-        
-        onClick={this.openSidebarHandler}
-      >
-        <Icon icon="ci:menu-alt-03" width="24" />
-      </div>
-      <div className="user-info" onClick={this.openSidebarHandler}>
-                <span className="avatar">
-                  <Icon icon="fa-solid:user-circle" width="35" height="35" />
-                </span>
-                <span className="user-name">Parita</span>
-              </div>
-              </div>
-           
-        <hr></hr>
-        <br></br>
-        {/* <br></br> */}
               <Outlet />
             </div>
           </Col>
