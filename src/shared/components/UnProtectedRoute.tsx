@@ -21,11 +21,7 @@ const UnProtectedRouteComponent: React.FC<UnProtectedRouteRouteProps> = ({ compo
       link = '/client/dashboard'
       break;
     case 'Doctor':
-      link = '/doctor/dashboard'
-      break;
     case 'FrontDesk':
-      link = '/staff/dashboard'
-      break;
     case 'Admin':
       link = '/admin/dashboard'
       break;

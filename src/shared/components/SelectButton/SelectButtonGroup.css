@@ -1,0 +1,19 @@
+/* Custom CSS for SelectButtonGroup */
+.btn {
+    border-radius: 0.25rem; /* Rounded corners */
+    margin-right: 5px; /* Margin between buttons */
+  }
+  
+  .btn-primary.active {
+    background-color: #007bff !important; /* Active background color */
+  }
+  
+  .btn:not(:last-child) {
+    margin-right: 5px; /* Space between buttons */
+  }
+  
+  .btn.disabled {
+    pointer-events: none; /* Disable pointer events */
+    opacity: 0.65; /* Reduced opacity for disabled state */
+  }
+  
