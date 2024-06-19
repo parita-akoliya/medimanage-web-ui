@@ -1,0 +1,180 @@
+.App {
+    text-align: center;
+  }
+  
+  .App-header {
+    background-color: #282c34;
+    padding: 20px;
+    color: white;
+  }
+  
+  .about-us .card, .contact-us .card {
+    margin-top: 20px;
+    padding: 20px;
+    border: none; /* Remove default border */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add box shadow */
+  }
+  
+  .our-promises {
+    margin-top: 50px; /* Increase margin for better separation */
+  }
+  
+  .promise-card {
+    border: none !important; /* Remove default border */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add box shadow */
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .promise-card:hover {
+    transform: translateY(-5px); /* Lift card on hover */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Darken box shadow on hover */
+  }
+  
+  
+  
+  .contact-us .card {
+    padding: 40px;
+  }
+  
+  .contact-us .card-text {
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .about-us .card, .our-services .promise-card, .contact-us .card {
+      padding: 15px;
+    }
+  }
+  .promise-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* .promise-item {
+    flex: 1;
+  } */
+ 
+
+  
+  .promise-card .card-body {
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center; */
+    padding: 2rem 1.5rem;
+    /* align-items: flex-start; */
+  }
+
+  .promise-card .card-text {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+    /* justify-content: center; */
+    margin: 0.5rem 0;
+    text-align: left;
+  }
+  
+  .promise-card .card-title {
+    margin-top: 1rem;
+    color: #333333;
+    font-weight: bold;
+  }
+  .check-icon {
+    color: #6F6DE0;
+    margin-right: 0.5rem;
+    font-size: 14px;
+  }
+  .promise-card .promise-icon {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+    /* color:#6F6DE0; */
+  }
+
+  .card-text ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .card-text ul li {
+    display: flex;
+    align-items: center;
+    margin: 0.5rem 0;
+  }
+  
+  .card-text ul li .check-icon {
+    margin-right: 0.5rem;
+  }
+  .contact-us .card-text {
+    margin-top: 20px;
+    color: #777777;
+  }
+  /* .contact-us a {
+    color: #6F6DE0;
+  } */
+  
+  .contact-us a:hover {
+    color: #6DD0E0;
+  } 
+   .contact-us button {
+    background-color: #6F6DE0;
+    border-color: #6F6DE0;
+    color:white;
+  }
+  .contact-us .contact-icon {
+    font-size: 1.5rem;
+    color: #6F6DE0;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  
+  .contact-us .card-text a {
+    color: #6F6DE0;
+    text-decoration: none;
+  }
+  .contact-us .card-text a:hover {
+    text-decoration: underline;
+  }
+  /* Text Alignment */
+.contact-us .card-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Add spacing between icon and text */
+    font-size: 1rem;
+  }
+  
+  .contact-us .card-text strong {
+    margin-left: 5px;
+  }
+  .contact-us .card-text {
+    margin: 10px 0; /* Add margin for spacing between lines */
+  }
+  
+  /* Button Styles */
+  .contact-us .btn-primary {
+    background-color: #6F6DE0;
+    border-color: #6F6DE0;
+  }
+  
+  .contact-us .btn-primary:hover {
+    background-color: #5e5cc7;
+    border-color: #5e5cc7;
+  }
+  /* .contact-us button:hover {
+    background-color: #6DD0E0;
+    border-color: #6DD0E0;
+  } */
+  @media (max-width: 768px) {
+    .about-us .card, .our-services .promise-card, .contact-us .card {
+      padding: 15px;
+    }
+  }
+  .banner-image {
+    width: 100%; 
+    max-height: 350px; 
+    object-fit: cover; 
+   
+  }
