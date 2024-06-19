@@ -10,10 +10,14 @@ import {
   forgotPasswordFailure,
   resetPasswordSuccess,
   resetPasswordFailure,
+  registerAdminSuccess,
+  registerAdminFailure,
+  registerDoctorSuccess,
+  registerDoctorFailure,
 } from '../actions/authActions';
 import { Actions, CallbackFunctions } from '../../shared/models/Actions';
 import authApi from '../../shared/api/authApi';
-import { FORGOT_PASSWORD_REQUEST, LOGIN_USER_REQUEST, REGISTER_PATIENT_REQUEST, RESET_PASSWORD_REQUEST, VERIFY_OTP_REQUEST } from '../types/authTypes';
+import { FORGOT_PASSWORD_REQUEST, LOGIN_USER_REQUEST, REGISTER_ADMIN_REQUEST, REGISTER_DOCTOR_REQUEST, REGISTER_PATIENT_REQUEST, RESET_PASSWORD_REQUEST, VERIFY_OTP_REQUEST } from '../types/authTypes';
 import { toast } from 'react-toastify';
 import CryptoJS from 'crypto-js';
 
@@ -53,6 +57,35 @@ function* loginSaga(action: Actions): any {
     yield put(loginFailure(error.response.data.error));
   }
 }
+
+function* registerAdminSaga(action: Actions) {
+  try {
+    const userData = action.payload;
+    yield call(authApi.registerAdmin, userData);
+    yield call(handleToast, 'Registration successful.', 'success');
+    yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
+    yield put(registerAdminSuccess());
+  } catch (error: any) {
+    yield call(handleToast, error.response.data.error || error.response.data.message || 'Registration failed. Please try again.', 'error');
+    yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');
+    yield put(registerAdminFailure(error.message));
+  }
+}
+
+function* registerDoctorSaga(action: Actions) {
+  try {
+    const userData = action.payload;
+    yield call(authApi.registerDoctor, userData);
+    yield call(handleToast, 'Registration successful.', 'success');
+    yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
+    yield put(registerDoctorSuccess());
+  } catch (error: any) {
+    yield call(handleToast, error.response.data.error || error.response.data.message || 'Registration failed. Please try again.', 'error');
+    yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');
+    yield put(registerDoctorFailure(error.message));
+  }
+}
+
 
 function* registerPatientSaga(action: Actions) {
   try {
@@ -119,4 +152,7 @@ export default function* authSaga() {
   yield takeLatest(VERIFY_OTP_REQUEST, verifyOtpSaga);
   yield takeLatest(FORGOT_PASSWORD_REQUEST, forgotPasswordSaga);
   yield takeLatest(RESET_PASSWORD_REQUEST, resetPasswordSaga);
+  yield takeLatest(REGISTER_ADMIN_REQUEST, registerAdminSaga);
+  yield takeLatest(REGISTER_DOCTOR_REQUEST, registerDoctorSaga);
+
 }

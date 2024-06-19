@@ -1,15 +1,17 @@
 import { RouteObject } from 'react-router-dom';
 import AdminDashboardLayout from './AdminDashboardLayout/AdminDashboardLayout.component';
-import BlankPageComponent from './Dashboard/Dashboard.component';
-import ProfileComponent from './Profile/Profile.component';
+import ProfileComponent from '../../shared/components/Profile/Profile.component';
+import DashboardComponent from './Dashboard/Dashboard.component';
+import UserManagementComponent from './UserManagement/UserManagement.component';
+import ClinicManagementComponent from './ClinicManagement/ClinicManagement.component';
 
 const adminChildren: RouteObject[] = [
-  { path: 'dashboard', element: <BlankPageComponent page="dashboard" /> },
-  { path: 'users', element: <ProfileComponent  /> },
-  { path: 'clinics', element: <BlankPageComponent page="doctors" /> },
-  { path: 'settings', element: <BlankPageComponent page="settings" /> },
-  { path: 'profile', element: <BlankPageComponent page="profile" /> },
-  { path: '', element: <BlankPageComponent page="empty" /> }
+  { path: 'dashboard', element: <DashboardComponent page="dashboard" /> },
+  { path: 'users', element: <UserManagementComponent  /> },
+  { path: 'clinic', element: <ClinicManagementComponent /> },
+  { path: 'settings', element: <DashboardComponent page="settings" /> },
+  { path: 'profile', element: <ProfileComponent /> },
+  { path: '', element: <DashboardComponent page="empty" /> }
 ];
 
 export const AdminRoutes: RouteObject[] = [

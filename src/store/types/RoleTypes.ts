@@ -1,6 +1,10 @@
 interface RoleConstants {
     [key: string]: string;
-  }
+}
+interface RoleConstantsMap {
+    [key: string]: String[];
+}
+
 
 export const RoleTypes: RoleConstants = {
     PATIENT: 'Patient',
@@ -9,16 +13,14 @@ export const RoleTypes: RoleConstants = {
     DOCTOR: 'Doctor'
 }
 
-export const PathToRoleMappings: RoleConstants = {
-    'client': 'Patient',
-    'staff': 'FrontDesk',
-    'doctor': 'Doctor',
-    'admin': 'Admin'    
+export const PathToRoleMappings: RoleConstantsMap = {
+    'client': ['Patient'],
+    'admin': ['Admin', 'Doctor', 'FrontDesk']
 }
 
 export const AuthRoleMappings: RoleConstants = {
-    'Patient': '/auth',
+    'Patient': '/client/auth',
     'FrontDesk': '/admin-auth',
     'Doctor': '/admin-auth',
-    'Admin': '/admin-auth'    
+    'Admin': '/admin-auth'
 }

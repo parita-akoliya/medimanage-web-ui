@@ -6,6 +6,15 @@ export const REGISTER_PATIENT_REQUEST = 'REGISTER_PATIENT_REQUEST';
 export const REGISTER_PATIENT_SUCCESS = 'REGISTER_PATIENT_SUCCESS';
 export const REGISTER_PATIENT_FAILURE = 'REGISTER_PATIENT_FAILURE';
 
+export const REGISTER_ADMIN_REQUEST = 'REGISTER_ADMIN_REQUEST';
+export const REGISTER_ADMIN_SUCCESS = 'REGISTER_ADMIN_SUCCESS';
+export const REGISTER_ADMIN_FAILURE = 'REGISTER_ADMIN_FAILURE';
+
+export const REGISTER_DOCTOR_REQUEST = 'REGISTER_DOCTOR_REQUEST';
+export const REGISTER_DOCTOR_SUCCESS = 'REGISTER_DOCTOR_SUCCESS';
+export const REGISTER_DOCTOR_FAILURE = 'REGISTER_DOCTOR_FAILURE';
+
+
 export const VERIFY_OTP_REQUEST = 'VERIFY_OTP_REQUEST';
 export const VERIFY_OTP_SUCCESS = 'VERIFY_OTP_SUCCESS';
 export const VERIFY_OTP_FAILURE = 'VERIFY_OTP_FAILURE';
@@ -56,6 +65,37 @@ interface RegisterUserFailureAction {
     type: typeof REGISTER_PATIENT_FAILURE;
     error: string;
 }
+
+interface RegisterDoctorRequestAction {
+    type: typeof REGISTER_DOCTOR_REQUEST;
+    payload: Object;
+}
+
+interface RegisterDoctorSuccessAction {
+    type: typeof REGISTER_DOCTOR_SUCCESS;
+    payload: any;
+}
+
+interface RegisterDoctorFailureAction {
+    type: typeof REGISTER_DOCTOR_FAILURE;
+    error: string;
+}
+
+interface RegisterAdminRequestAction {
+    type: typeof REGISTER_ADMIN_REQUEST;
+    payload: Object;
+}
+
+interface RegisterAdminSuccessAction {
+    type: typeof REGISTER_ADMIN_SUCCESS;
+    payload: any;
+}
+
+interface RegisterAdminFailureAction {
+    type: typeof REGISTER_ADMIN_FAILURE;
+    error: string;
+}
+
 
 interface VerifyOTPRequestAction {
     type: typeof VERIFY_OTP_REQUEST;
@@ -134,4 +174,11 @@ export type AuthActionTypes =
     | ResetPasswordRequestFailure
     | LogoutRequest
     | LogoutFailure
-    | LogoutSuccess;
+    | LogoutSuccess
+    | RegisterAdminRequestAction
+    | RegisterAdminSuccessAction
+    | RegisterAdminFailureAction
+    | RegisterDoctorRequestAction
+    | RegisterDoctorSuccessAction
+    | RegisterDoctorFailureAction;
+

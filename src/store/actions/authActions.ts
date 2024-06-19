@@ -17,6 +17,12 @@ import {
     LOGOUT_REQUEST,
     LOGOUT_SUCCESS,
     LOGOUT_FAILURE,
+    REGISTER_ADMIN_SUCCESS,
+    REGISTER_ADMIN_FAILURE,
+    REGISTER_ADMIN_REQUEST,
+    REGISTER_DOCTOR_SUCCESS,
+    REGISTER_DOCTOR_FAILURE,
+    REGISTER_DOCTOR_REQUEST,
 } from '../types/authTypes';
 
 export const loginUser = (email: string, password: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
@@ -71,4 +77,20 @@ export const logoutSuccess = (onCallSuccess?: Function | void, onCallFail?: Func
 
 export const logoutFailure = (error: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => (
     { type: LOGOUT_FAILURE, error: error, callbacks: { onCallSuccess, onCallFail } }
+);
+
+export const registerAdminSuccess = (onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: REGISTER_ADMIN_SUCCESS, payload: {}, callbacks: { onCallSuccess, onCallFail } });
+
+export const registerAdminFailure = (error: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: REGISTER_ADMIN_FAILURE, error, callbacks: { onCallSuccess, onCallFail } });
+
+export const registerAdmin = (userData: Object, onCallSuccess?: Function | void, onCallFail?: Function | void) => (
+    { type: REGISTER_ADMIN_REQUEST, payload: userData, callbacks: { onCallSuccess, onCallFail } }
+);
+
+export const registerDoctorSuccess = (onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: REGISTER_DOCTOR_SUCCESS, payload: {}, callbacks: { onCallSuccess, onCallFail } });
+
+export const registerDoctorFailure = (error: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: REGISTER_DOCTOR_FAILURE, error, callbacks: { onCallSuccess, onCallFail } });
+
+export const registerDoctor = (userData: Object, onCallSuccess?: Function | void, onCallFail?: Function | void) => (
+    { type: REGISTER_DOCTOR_REQUEST, payload: userData, callbacks: { onCallSuccess, onCallFail } }
 );
