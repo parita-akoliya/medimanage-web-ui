@@ -18,7 +18,7 @@ const ProtectedRouteComponent: React.FC<ProtectedRouteProps> = ({ component: Com
   const path = location.pathname;
   const basePath: string = path.split('/')[1]
   const roleMapped = PathToRoleMappings[basePath]
-  const isValidPath = roleMapped === role
+  const isValidPath = role ? roleMapped.includes(role): false;
   let prevRole = undefined;
   let link = undefined;
 
