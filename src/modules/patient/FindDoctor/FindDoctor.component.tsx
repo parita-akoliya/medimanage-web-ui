@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './FindDoctor.css';
 import doctor1 from '../../../images/doctor1.png';
 import doctor2 from '../../../images/doctor2.png';
+
 
 type Doctor = {
   id: number;
@@ -49,6 +51,12 @@ const doctorsData: Doctor[] = [
 const FindDoctor: React.FC = () => {
   const [searchName, setSearchName] = useState('');
   const [searchCity, setSearchCity] = useState('');
+  const navigate = useNavigate();
+  const navigationToProfile = (data:any) => {
+    console.log(data);
+    navigate(`/client/doctor-clinic-info/${data.id}`, { state: { data } });
+    // this.setState({ showModal: true, selectedUser: user, role: user?.role || '', editMode: null });
+  };
 
   const filteredDoctors = doctorsData.filter((doctor) => {
     return (
@@ -56,6 +64,8 @@ const FindDoctor: React.FC = () => {
       doctor.city.toLowerCase().includes(searchCity.toLowerCase())
     );
   });
+
+
 
   return (
     <Container className="find-doctor-container">
@@ -108,7 +118,7 @@ const FindDoctor: React.FC = () => {
                     <span>{doctor.street}, {doctor.city}, {doctor.state}, {doctor.country}, {doctor.zipcode}</span>
                   </div>
                 </Card.Text>
-                <Button variant="primary">View Profile</Button>
+                <Button variant="primary" onClick={() => navigationToProfile(doctor)}>View Profile</Button>
               </Card.Body>
             </Card>
           </Col>

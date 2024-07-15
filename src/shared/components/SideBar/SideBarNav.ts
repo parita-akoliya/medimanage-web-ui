@@ -22,6 +22,13 @@ const AdminSideBarNav = [
       icon: faHome,
       text: "Clinic",
       roles: ['Admin']
+    },
+    {
+      link: "/admin/appointment",
+      section: "appointment",
+      icon: faHome,
+      text: "Appointment",
+      roles: ['Admin','Doctor','FrontDesk']
     }
   ];
   

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './FindClinic.css';
@@ -44,6 +45,13 @@ const clinicsData: Clinic[] = [
 const FindClinic: React.FC = () => {
   const [searchName, setSearchName] = useState('');
   const [searchCity, setSearchCity] = useState('');
+  const navigate = useNavigate();
+
+  const navigationToProfile = (data:any) => {
+    console.log(data);
+    navigate(`/client/doctor-clinic-info/${data.id}`, { state: { data } });
+    // this.setState({ showModal: true, selectedUser: user, role: user?.role || '', editMode: null });
+  };
 
   const filteredClinics = clinicsData.filter((clinic) => {
     return (
@@ -102,7 +110,7 @@ const FindClinic: React.FC = () => {
                     <span>{clinic.contact}</span>
                   </div>
                 </Card.Text>
-                <Button variant="primary">View Details</Button>
+                <Button variant="primary" onClick={() => navigationToProfile(clinic)}>View Details</Button>
               </Card.Body>
             </Card>
           </Col>

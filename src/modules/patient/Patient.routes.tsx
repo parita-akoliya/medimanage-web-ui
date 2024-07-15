@@ -9,6 +9,7 @@ import UnProtectedRoute from '../../shared/components/UnProtectedRoute';
 import ProtectedRoute from '../../shared/components/ProtectedRoute';
 import { AuthRoutes } from './Auth/Auth.routes';
 import ProfileComponent from '../../shared/components/Profile/Profile.component';
+import DoctorClinicProfile from './DoctorClinicProfile/DoctorClinicProfile.component';
 
 const Root: React.FC = () => {
   return <div><Outlet/></div>;
@@ -21,7 +22,8 @@ const clientChildren: RouteObject[] = [
   { path: 'find-doctor', element: <FindDoctor/> },
   { path: 'find-clinic', element: <FindClinic/> },
   { path: 'auth', element: <UnProtectedRoute component={Root}/>, children: AuthRoutes },
-  { path: 'profile', element: <ProtectedRoute component={ProfileComponent}/> },
+  { path: 'profile', element: <UnProtectedRoute component={ProfileComponent}/> },
+  { path: 'doctor-clinic-info/:id', element: <UnProtectedRoute component={DoctorClinicProfile}/> },
 
 
 ];
