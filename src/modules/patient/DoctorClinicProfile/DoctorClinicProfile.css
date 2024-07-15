@@ -1,0 +1,74 @@
+/* DoctorClinicProfile.css */
+
+.doctor-profile-container {
+    margin-top: 20px;
+  }
+  
+  .doctor-profile-card {
+    border: none !important;
+    background-color: #ffffff; /* White background */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease; /* Smooth transition for box shadow */
+  }
+  
+  .doctor-profile-card:hover {
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Highlight on hover */
+  }
+  
+  .doctor-profile-image {
+    width: 100%;
+    height: auto;
+    transition: transform 0.3s ease;
+  }
+  
+  .doctor-profile-image-wrapper {
+    max-width: 100%;
+    height: auto;
+    overflow: hidden;
+  }
+  
+  h2 {
+    color: #6f6de0; /* Purple color for heading */
+    margin-bottom: 20px;
+  }
+  
+  .form-control {
+    margin-bottom: 15px;
+    border: 1px solid #cccccc; /* Light gray border */
+  }
+  
+  .form-control:focus {
+    border-color: #6f6de0; /* Focus color */
+    box-shadow: 0 0 5px rgba(111, 109, 224, 0.5); /* Focus box shadow */
+  }
+  
+  textarea.form-control {
+    resize: vertical; /* Allow vertical resizing for textarea */
+  }
+  
+  button.w-100 {
+    margin-top: 10px;
+  }
+  
+  button.btn-primary {
+    background-color: #6f6de0; /* Purple background */
+    border-color: #6f6de0;
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+  }
+  
+  button.btn-primary:hover {
+    background-color: #5c5ac7; /* Darker purple on hover */
+    border-color: #5c5ac7;
+  }
+  
+  button.btn-secondary {
+    background-color: #a3a1e0; /* Lighter purple background */
+    border-color: #a3a1e0;
+    transition: background-color 0.3s ease, border-color 0.3s ease; /* Smooth transition */
+  }
+  
+  button.btn-secondary:hover {
+    background-color: #8986c7; /* Darker shade on hover */
+    border-color: #8986c7;
+  }
+  
