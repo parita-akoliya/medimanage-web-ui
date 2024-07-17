@@ -22,14 +22,14 @@ const ProtectedRouteComponent: React.FC<ProtectedRouteProps> = ({ component: Com
   let prevRole = undefined;
   let link = undefined;
 
-  if (localStorage.getItem('prevRole') != undefined && localStorage.getItem('prevRole') != '') {
+  if (localStorage.getItem('prevRole') !== undefined && localStorage.getItem('prevRole') !== '') {
     prevRole = localStorage.getItem('prevRole')!
     link = AuthRoleMappings[prevRole]
   }
   return (isAuthenticated && isToken && isRole && isValidPath) ? (
     <Component {...rest} location={location} />
   ) : (
-    <Navigate to={link ? link : "/auth"} state={{ from: location }} />
+    <Navigate to={link ? link : "/client/auth"} state={{ from: location }} />
   );
 };
 
