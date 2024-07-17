@@ -93,7 +93,7 @@ function* getClinicDetailsSaga(action: Actions): any {
 function* getAllClinicSagas(action: Actions): any {
     try {
         const response = yield call(clinicApi.getAllClinics);
-        yield call(handleToast, response.data.message || 'Clinic details fetched successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Clinic details fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
         yield put(getAllClinicSuccess(response.data));
     } catch (error: any) {
