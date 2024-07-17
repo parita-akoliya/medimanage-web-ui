@@ -4,6 +4,7 @@ import './UserManagement.css';
 import { changeRoleRequest, getAllUsersRequest, updateEmailRequest, deleteUserRequest, updateUserRequest } from '../../../store/actions/userActions';
 import { connect } from 'react-redux';
 import { forgotPasswordRequest, registerAdmin, registerDoctor, registerPatient } from '../../../store/actions/authActions';
+import { error } from 'console';
 
 interface User {
   _id?: string;
@@ -37,6 +38,13 @@ interface UserManagementState {
   showConfirmDelete: boolean;
   currentPage: number;
   pageSize: number;
+  errors: {
+    firstName: string;
+    lastName: string;
+    email: string;
+    contact_no: string;
+    role: string;
+  };
 }
 
 class UserManagementComponent extends Component<UserManagementProps, UserManagementState> {
@@ -52,6 +60,13 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
       showConfirmDelete: false,
       currentPage: 1,
       pageSize: 10, // Default page size
+      errors: {
+        firstName: '',
+        lastName: '',
+        email: '',
+        contact_no: '',
+        role: '',
+      },
     };
   }
 
@@ -81,6 +96,47 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
     const email = formData.get('email') as string;
     const contact_no = formData.get('contact_no') as string;
     const role = formData.get('role') as string;
+  // Validation
+  let isValid = true;
+  const errors = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    contact_no: '',
+    role: '',
+  };
+
+  if (!firstName) {
+    errors.firstName = 'First Name is required';
+    isValid = false;
+  }
+
+  if (!lastName) {
+    errors.lastName = 'Last Name is required';
+    isValid = false;
+  }
+
+  if (!email) {
+    errors.email = 'Email is required';
+    isValid = false;
+  } else if (!/\S+@\S+\.\S+/.test(email)) {
+    errors.email = 'Email address is invalid';
+    isValid = false;
+  }
+
+  if (!contact_no) {
+    errors.contact_no = 'Contact Number is required';
+    isValid = false;
+  }
+
+  if (!role) {
+    errors.role = 'Role is required';
+    isValid = false;
+  }
+
+  this.setState({ errors });
+
+  if (isValid) {
 
     if (this.state.selectedUser) {
       const updatedUser = { ...this.state.selectedUser, firstName, lastName, email, contact_no, role };
@@ -123,6 +179,7 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
       }
       this.setState({ users: [...this.state.users, newUser], showModal: false });
     }
+  }
   };
 
   handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,7 +227,7 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
   };
 
   render() {
-    const { users, showModal, selectedUser, filterText, role, editMode, showConfirmDelete, currentPage, pageSize } = this.state;
+    const { users, showModal, selectedUser, filterText, role, editMode, showConfirmDelete, currentPage, pageSize ,errors} = this.state;
 
     const filteredUsers = users?.filter((user: any) =>
       user.firstName.toLowerCase().includes(filterText.toLowerCase()) ||
@@ -269,8 +326,11 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
                   type="text"
                   name="firstName"
                   defaultValue={selectedUser ? selectedUser.firstName : ''}
-                  required
+                  isInvalid={!!errors.firstName}
                 />
+                  <Form.Control.Feedback type="invalid">
+                      {errors.firstName }
+                    </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formName">
                 <Form.Label>Last Name</Form.Label>
@@ -278,8 +338,11 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
                   type="text"
                   name="lastName"
                   defaultValue={selectedUser ? selectedUser.lastName : ''}
-                  required
+                  isInvalid={!!errors.lastName}
                 />
+                 <Form.Control.Feedback type="invalid">
+                      {errors.lastName }
+                    </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formEmail">
                 <Form.Label>Email address</Form.Label>
@@ -290,7 +353,11 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
                   disabled={editMode === 'email'}
                   onDoubleClick={() => this.handleDoubleClick('email')}
                   onBlur={() => this.setState({ editMode: null })}
+                  isInvalid={!!errors.email}
                 />
+                 <Form.Control.Feedback type="invalid">
+                      {errors.email }
+                    </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formPhone">
                 <Form.Label>Contact Number</Form.Label>
@@ -298,8 +365,11 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
                   type="text"
                   name="contact_no"
                   defaultValue={selectedUser ? selectedUser.contact_no : ''}
-                  required
+                  isInvalid={!!errors.contact_no}
                 />
+                 <Form.Control.Feedback type="invalid">
+                      {errors.contact_no }
+                    </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formRole">
                 <Form.Label>Role</Form.Label>
@@ -311,11 +381,15 @@ class UserManagementComponent extends Component<UserManagementProps, UserManagem
                   disabled={editMode === 'role'}
                   onDoubleClick={() => this.handleDoubleClick('role')}
                   onBlur={() => this.setState({ editMode: null })}
+                  isInvalid={!!errors.role}
                 >
                   <option value="Admin">Admin</option>
                   <option value="Doctor">Doctor</option>
                   <option value="Patient">Patient</option>
                 </Form.Control>
+                <Form.Control.Feedback type="invalid">
+                      {errors.role }
+                    </Form.Control.Feedback>
               </Form.Group>
               <Button variant="primary" type="submit">
                 Save

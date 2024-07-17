@@ -97,7 +97,7 @@ function* deleteUserSaga(action: Actions): any {
 function* getAllUsersSaga(action: Actions): any {
     try {
         const response = yield call(userApi.getAllUsers);
-        yield call(handleToast, response.data.message || 'Users fetched successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Users fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
         yield put(getAllUsersSuccess(response.data));
     } catch (error: any) {

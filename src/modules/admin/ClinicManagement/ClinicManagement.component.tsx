@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import './ClinicManagement.css'
-import { Modal, Button, Table, Form, Pagination, Dropdown } from 'react-bootstrap'; // Assuming you are using react-bootstrap components
-import { getAllClinicRequest, registerClinicRequest, deleteClinicRequest } from '../../../store/actions/clinicActions'; // Adjust path as needed
-import { updateClinic } from '../../../shared/api/clinicApi';
+import { Modal, Button, Table, Form, Pagination } from 'react-bootstrap'; // Assuming you are using react-bootstrap components
+import './ClinicManagement.css';
+import { getAllClinicRequest, registerClinicRequest, deleteClinicRequest, updateClinicRequest } from '../../../store/actions/clinicActions'; // Adjust path as needed
 
 interface User {
   id: number;
@@ -19,7 +18,7 @@ interface ClinicManagementProps {
   getAllClinics: () => void;
   registerClinic: (clinicData: any, onCallSuccess: Function) => void;
   deleteClinic: (clinicId: string, onCallSuccess: Function) => void;
-  updateClinic: (clinicData: any) => void;
+  updateClinic: (clinicData: any, onCallSuccess: Function) => void;
 }
 
 interface ClinicManagementState {
@@ -29,6 +28,7 @@ interface ClinicManagementState {
   filterText: string;
   currentPage: number;
   pageSize: number;
+  errors: any;
 }
 
 class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicManagementState> {
@@ -41,6 +41,7 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
       filterText: '',
       currentPage: 1,
       pageSize: 5, // Default page size
+      errors: {},
     };
   }
 
@@ -49,16 +50,44 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
   }
 
   handleClose = () => {
-    this.setState({ showModal: false, selectedClinic: null });
+    this.setState({ showModal: false, selectedClinic: null,errors: {} });
   };
 
   handleShow = (clinic: any | null) => {
     this.setState({ showModal: true, selectedClinic: clinic });
   };
 
+  validateForm = (formData: FormData) => {
+    const errors: any = {};
+    const Fields = ['name', 'clinicEmail', 'street', 'city', 'state', 'zip', 'country', 'phone', 'specialty'];
+    Fields.forEach(field => {
+      if (!formData.get(field)) {
+        errors[field] = field + ' field is required ';
+      }
+    });
+
+    if (!this.state.selectedClinic) {
+      const frontDeskFields = ['firstName', 'lastName', 'email'];
+      frontDeskFields.forEach(field => {
+        if (!formData.get(field)) {
+          errors[field] = 'This field is ';
+        }
+      });
+    }
+
+    this.setState({ errors });
+    console.log(errors);
+    
+    return Object.keys(errors).length === 0;
+  };
+
   handleSave = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    if (!this.validateForm(formData)) {
+      return;
+    }
+
     const name = formData.get('name') as string;
     const clinicEmail = formData.get('clinicEmail') as string;
     const address = {
@@ -76,7 +105,9 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
 
     if (this.state.selectedClinic) {
       const updatedClinic = { _id: this.state.selectedClinic.clinic._id, name, address, phone };
-      this.props.updateClinic(updatedClinic);
+      this.props.updateClinic(updatedClinic, () => {
+        this.props.getAllClinics();
+      });
     } else {
       const newClinic: any = {
         data: { name, address, phone, specialty, email: clinicEmail },
@@ -110,7 +141,9 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
   };
 
   render() {
-    const { showModal, showConfirmDelete, selectedClinic, filterText, currentPage, pageSize } = this.state;
+    const { showModal, showConfirmDelete, selectedClinic, filterText, currentPage, pageSize,errors } = this.state;
+    console.log(this.props);
+    
     const clinics = this.props.clinics;
 
     const filteredClinics = clinics ? clinics.filter((clinic: any) =>
@@ -213,15 +246,18 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
             <Modal.Title>{selectedClinic ? 'Edit Clinic' : 'Add Clinic'}</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={this.handleSave}>
+           <Form onSubmit={this.handleSave}>
               <Form.Group controlId="formName">
                 <Form.Label>Name</Form.Label>
                 <Form.Control
                   type="text"
                   name="name"
                   defaultValue={selectedClinic ? selectedClinic.clinic.name : ''}
-                  required
+                  isInvalid={!!errors.name}
                 />
+              
+                  <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
+            
               </Form.Group>
               <Form.Group controlId="formEmail">
                 <Form.Label>Clinic Email</Form.Label>
@@ -229,8 +265,12 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="email"
                   name="clinicEmail"
                   defaultValue={selectedClinic ? selectedClinic.clinic.email : ''}
-                  required
+                  isInvalid={!!errors.clinicEmail}
+                  
                 />
+                 <Form.Control.Feedback type="invalid">
+                  {errors.clinicEmail}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formStreet">
                 <Form.Label>Street</Form.Label>
@@ -238,8 +278,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="street"
                   defaultValue={selectedClinic ? selectedClinic.clinic.address.street : ''}
-                  required
+                  isInvalid={!!errors.street}
                 />
+                 <Form.Control.Feedback type="invalid">
+                  {errors.street}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formCity">
                 <Form.Label>City</Form.Label>
@@ -247,8 +290,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="city"
                   defaultValue={selectedClinic ? selectedClinic.clinic.address.city : ''}
-                  required
+                  isInvalid={!!errors.city}
                 />
+                 <Form.Control.Feedback type="invalid">
+                  {errors.city}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formState">
                 <Form.Label>State</Form.Label>
@@ -256,8 +302,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="state"
                   defaultValue={selectedClinic ? selectedClinic.clinic.address.state : ''}
-                  required
+                  isInvalid={!!errors.state}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.state}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formZip">
                 <Form.Label>Zip</Form.Label>
@@ -265,8 +314,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="zip"
                   defaultValue={selectedClinic ? selectedClinic.clinic.address.zip : ''}
-                  required
+                  isInvalid={!!errors.zip}
                 />
+                 <Form.Control.Feedback type="invalid">
+                  {errors.zip}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formCountry">
                 <Form.Label>Country</Form.Label>
@@ -274,8 +326,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="country"
                   defaultValue={selectedClinic ? selectedClinic.clinic.address.country : ''}
-                  required
+                  isInvalid={!!errors.country}
                 />
+                 <Form.Control.Feedback type="invalid">
+                  {errors.country}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formPhone">
                 <Form.Label>Phone</Form.Label>
@@ -283,8 +338,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="phone"
                   defaultValue={selectedClinic ? selectedClinic.clinic.phone : ''}
-                  required
+                  isInvalid={!!errors.phone}
                 />
+                    <Form.Control.Feedback type="invalid">
+                  {errors.phone}
+                </Form.Control.Feedback>
               </Form.Group>
               <Form.Group controlId="formSpecialty">
                 <Form.Label>Specialty (comma-separated)</Form.Label>
@@ -292,8 +350,11 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                   type="text"
                   name="specialty"
                   defaultValue={selectedClinic ? selectedClinic.clinic.specialty.join(', ') : ''}
-                  required
+                  isInvalid={!!errors.specialty}
                 />
+                <Form.Control.Feedback type="invalid">
+                  {errors.specialty}
+                </Form.Control.Feedback>
               </Form.Group>
               {
                 (!selectedClinic &&
@@ -304,24 +365,33 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
                       <Form.Control
                         type="text"
                         name="firstName"
-                        required
+                        isInvalid={!!errors.firstName}
                       />
+                       <Form.Control.Feedback type="invalid">
+                      {errors.firstName}
+                    </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group controlId="lastName">
                       <Form.Label>Last Name</Form.Label>
                       <Form.Control
                         type="text"
                         name="lastName"
-                        required
+                        isInvalid={!!errors.lastName}
                       />
+                      <Form.Control.Feedback type="invalid">
+                      {errors.lastName}
+                    </Form.Control.Feedback>
                     </Form.Group>
                     <Form.Group controlId="formEmail">
                       <Form.Label>Email</Form.Label>
                       <Form.Control
                         type="email"
                         name="email"
-                        required
+                        isInvalid={!!errors.email}
                       />
+                      <Form.Control.Feedback type="invalid">
+                      {errors.email}
+                    </Form.Control.Feedback>
                     </Form.Group>
                   </>)
               }
@@ -344,7 +414,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getAllClinics: () => dispatch(getAllClinicRequest()),
   registerClinic: (clinicData: any, onCallSuccess: Function) => dispatch(registerClinicRequest(clinicData, onCallSuccess)),
   deleteClinic: (clinicId: string, onCallSuccess: Function) => dispatch(deleteClinicRequest(clinicId, onCallSuccess)),
-  updateClinic: (clinicData: void) => dispatch(updateClinic(clinicData))
+  updateClinic: (clinicData: void, onCallSuccess: Function) => dispatch(updateClinicRequest(clinicData, onCallSuccess))
 
 });
 
