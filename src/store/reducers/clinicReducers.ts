@@ -23,9 +23,14 @@ const clinic = (state = initialState, action: any): ClinicState => {
     switch (action.type) {
         case REGISTER_CLINIC_SUCCESS:
         case UPDATE_CLINIC_SUCCESS:
+            state.clinics.forEach((clinic: any) => {
+                if(clinic._id === action.payload._id) {
+                    clinic = action.payload
+                }
+            })
             return {
                 ...state,
-                clinics: action.payload,
+                clinics: state.clinics,
                 error: null,
             };
         case DELETE_CLINIC_SUCCESS:

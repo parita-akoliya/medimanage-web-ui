@@ -5,6 +5,7 @@ import { LoadingState } from '../types/loadingTypes';
 import user from './userReducers';
 import profile from './profileReducers';
 import clinic from './clinicReducers';
+import doctors from './doctorReducers';
 
 export interface RootState {
     auth: AuthState;
@@ -16,7 +17,8 @@ const rootReducer = combineReducers({
     user,
     profile,
     loading,
-    clinic
+    clinic,
+    doctors
 });
 
 export default rootReducer;

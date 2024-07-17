@@ -1,12 +1,10 @@
-import React, { Component } from 'react';
-import { Container, Row, Col, Button } from 'react-bootstrap';
+import { Component } from 'react';
+import { Container, Row, Col } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { logoutRequest } from '../../../store/actions/authActions';
 import { Outlet } from 'react-router-dom';
 import './AdminDashboardLayout.css';
 import SideBar from '../../../shared/components/SideBar/SideBar.component';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 interface AdminDashboardLayoutProps {
   logoutUser: () => void;

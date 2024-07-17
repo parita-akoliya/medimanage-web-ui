@@ -3,6 +3,8 @@ import authSaga from './authSagas';
 import profileSagas from './profileSagas';
 import adminUserSagas from './userSagas';
 import clinicSagas from './clinicSagas';
+import clientSagas from './clientSagas';
+import doctorSagas from './doctorSagas';
 
 export default function* rootSaga() {
   yield all([
@@ -10,5 +12,7 @@ export default function* rootSaga() {
     profileSagas(),
     adminUserSagas(),
     clinicSagas(),
+    clientSagas(),
+    doctorSagas(),
   ]);
 }

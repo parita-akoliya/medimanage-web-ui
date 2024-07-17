@@ -1,5 +1,5 @@
 import React from 'react';
-import { Outlet, RouteObject } from 'react-router-dom';
+import { Navigate, Outlet, RouteObject } from 'react-router-dom';
 import { PatientRoutes } from './modules/patient/Patient.routes';
 import { AdminRoutes } from './modules/admin/Admin.routes';
 import UnProtectedRoute from './shared/components/UnProtectedRoute';
@@ -11,6 +11,10 @@ const Root: React.FC = () => {
 };
 
 export const routes: RouteObject[] = [
+  {
+    path: '/',
+    element: <Navigate to={"/client"} replace={true}/>    
+  },
   {
     path: '/admin-auth/',
     element: <UnProtectedRoute component={Root} />,  

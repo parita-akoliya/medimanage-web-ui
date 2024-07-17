@@ -8,7 +8,7 @@ import AppointmentList from './AppointmentList/AppointmentList.component';
 
 const adminChildren: RouteObject[] = [
   { path: 'dashboard', element: <DashboardComponent page="dashboard" /> },
-  { path: 'users', element: <UserManagementComponent  /> },
+  { path: 'users', element: <UserManagementComponent /> },
   { path: 'clinic', element: <ClinicManagementComponent /> },
   { path: 'settings', element: <DashboardComponent page="settings" /> },
   { path: 'profile', element: <ProfileComponent /> },

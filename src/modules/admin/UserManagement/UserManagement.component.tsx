@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
-import { Modal, Button, Table, Form, Pagination, Dropdown } from 'react-bootstrap';
+import { Modal, Button, Table, Form, Pagination } from 'react-bootstrap';
 import './UserManagement.css';
 import { changeRoleRequest, getAllUsersRequest, updateEmailRequest, deleteUserRequest, updateUserRequest } from '../../../store/actions/userActions';
 import { connect } from 'react-redux';
 import { forgotPasswordRequest, registerAdmin, registerDoctor, registerPatient } from '../../../store/actions/authActions';
-import { error } from 'console';
 
 interface User {
   _id?: string;

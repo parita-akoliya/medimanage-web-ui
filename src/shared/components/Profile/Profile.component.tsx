@@ -1,11 +1,15 @@
 import React, { Component } from 'react';
-import { Form, Button, Container, Row, Col, Accordion, Card } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import './Profile.css';
 import { getProfileRequest, updateProfileRequest } from '../../../store/actions/profileActions';
 import { connect } from 'react-redux';
 import SelectButtonGroup from '../SelectButton/SelectButtonGroup.component';
+import { addSlotsRequest } from '../../../store/actions/slotActions';
 
 interface ProfileState {
+  isSlotChanged: boolean;
+  isFormChanged: boolean;
+  doctorId: string;
   form: {
     firstName: string;
     lastName: string;
@@ -41,6 +45,7 @@ interface ProfileState {
 interface ProfileProps {
   getProfile: () => void;
   updateProfile: (userData: any) => void;
+  addSlots: (slotRequestBody: any) => void;
   role: string;
   profileData: any; // New prop to store profile data fetched from Redux
 }
@@ -49,28 +54,31 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   constructor(props: ProfileProps) {
     super(props);
     this.state = {
+      doctorId: "",
+      isFormChanged: false,
+      isSlotChanged: false,
       form: {
-        firstName: '',
-        lastName: '',
-        email: '',
-        contact_no: '',
-        dob: '',
-        street: '',
-        city: '',
-        state: '',
-        country: '',
-        zip: '',
-        gender: '',
-        licenseNumber: '',
-        speciality: '',
-        clinicName: '',
-        yearsOfExperience: '',
+        firstName: "",
+        lastName: "",
+        email: "",
+        contact_no: "",
+        dob: "",
+        street: "",
+        city: "",
+        state: "",
+        country: "",
+        zip: "",
+        gender: "",
+        licenseNumber: "",
+        speciality: "",
+        clinicName: "",
+        yearsOfExperience: "",
         profilePhoto: null,
-        insuranceDetails: '',
-        emergencyContact: '',
-        healthCardDetails: '',
-        healthHistory: '',
-        staffNumber: '',
+        insuranceDetails: "",
+        emergencyContact: "",
+        healthCardDetails: "",
+        healthHistory: "",
+        staffNumber: "",
         slotAvailability: {
           Monday: [false, false, false, false],
           Tuesday: [false, false, false, false],
@@ -104,28 +112,44 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
     console.log(profileData);
 
     const formData = {
-      firstName: userData.firstName || '',
-      lastName: userData.lastName || '',
-      email: userData.email || '',
-      contact_no: userData.contact_no || '',
-      dob: userData.dob ? new Date(userData.dob).toISOString().split('T')[0] : '',
-      street: address.street || '',
-      city: address.city || '',
-      state: address.state || '',
-      zip: address.zip || '',
-      country: address.country || '',
-      gender: userData.gender || '',
-      profilePhoto: userData.profilePhoto || '',
-      ...(userData.details?.licenseNumber ? { licenseNumber: userData.details.licenseNumber } : {}),
-      ...(userData.details?.speciality ? { speciality: userData.details.speciality } : {}),
-      ...(userData.details?.clinicName ? { clinicName: userData.details.clinicName } : {}),
-      ...(userData.details?.yearsOfExperience ? { yearsOfExperience: userData.details.yearsOfExperience } : {}),
-      ...(userData.details?.insuranceDetails ? { insuranceDetails: userData.details.insuranceDetails } : {}),
-      ...(userData.details?.emergencyContact ? { emergencyContact: userData.details.emergencyContact } : {}),
-      ...(userData.details?.healthCardDetails ? { licenseNumber: userData.details.licenseNumber } : {}),
-      ...(userData.details?.healthHistory ? { healthHistory: userData.details.healthHistory } : {}),
-      ...(userData.details?.staffNumber ? { staffNumber: userData.details.staffNumber } : {}),
-      slotAvailability: details?.slotAvailability || {
+      firstName: userData.firstName || "",
+      lastName: userData.lastName || "",
+      email: userData.email || "",
+      contact_no: userData.contact_no || "",
+      dob: userData.dob
+        ? new Date(userData.dob).toISOString().split("T")[0]
+        : "",
+      street: address.street || "",
+      city: address.city || "",
+      state: address.state || "",
+      zip: address.zip || "",
+      country: address.country || "",
+      gender: userData.gender || "",
+      profilePhoto: userData.profilePhoto || "",
+      ...(details?.license_number
+        ? { licenseNumber: details.license_number }
+        : {}),
+      ...(details?.speciality ? { speciality: details.speciality } : {}),
+      ...(details?.clinic?.name ? { clinicName: details?.clinic?.name } : {}),
+      ...(details?.yearsOfExperience
+        ? { yearsOfExperience: details.yearsOfExperience }
+        : {}),
+      ...(details?.insuranceDetails
+        ? { insuranceDetails: details.insuranceDetails }
+        : {}),
+      ...(details?.emergencyContact
+        ? { emergencyContact: details.emergencyContact }
+        : {}),
+      ...(details?.healthCardDetails
+        ? { licenseNumber: details.licenseNumber }
+        : {}),
+      ...(details?.healthHistory
+        ? { healthHistory: details.healthHistory }
+        : {}),
+      ...(details?.staffNumber ? { staffNumber: details.staffNumber } : {}),
+      slotAvailability: this.convertFormDataToSlotStructure(
+        details?.availability
+      ) || {
         Monday: [false, false, false, false],
         Tuesday: [false, false, false, false],
         Wednesday: [false, false, false, false],
@@ -136,9 +160,47 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
       },
     };
 
+    console.log(formData);
+    
     this.setState({
+      doctorId: details._id,
       form: formData,
     });
+  };
+
+  convertFormDataToSlotStructure = (slotAvailability: any) => {
+    console.log(slotAvailability);
+    
+    const dayToIndex: any = {
+      Monday: 0,
+      Tuesday: 1,
+      Wednesday: 2,
+      Thursday: 3,
+      Friday: 4,
+      Saturday: 5,
+      Sunday: 6,
+    };
+
+    const timeSlots: any = {
+      "07:00": 0,
+      "11:00": 1,
+      "15:00": 2,
+      "19:00": 3,
+    };
+
+    const result = Array.from({ length: 7 }, () => Array(4).fill(false));
+
+    slotAvailability.forEach((slot: any) => {
+      const dayIndex = dayToIndex[slot.day];
+      const timeSlotIndex = timeSlots[slot.startTime];
+      if (dayIndex !== undefined && timeSlotIndex !== undefined) {
+        result[dayIndex][timeSlotIndex] = true;
+      }
+    });
+
+    const [Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday] =
+      result;
+    return { Monday, Tuesday, Wednesday, Thursday, Friday, Saturday, Sunday };
   };
 
   validateForm = () => {
@@ -147,12 +209,12 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
     let formIsValid = true;
 
     if (!form.firstName) {
-      errors.firstName = 'First Name is required';
+      errors.firstName = "First Name is required";
       formIsValid = false;
     }
 
     if (!form.lastName) {
-      errors.lastName = 'Last Name is required';
+      errors.lastName = "Last Name is required";
       formIsValid = false;
     }
     this.setState({ errors });
@@ -160,10 +222,13 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   };
 
   handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
   ) => {
     const { name, value } = e.target;
     this.setState((prevState) => ({
+      isFormChanged: true,
       form: {
         ...prevState.form,
         [name]: value,
@@ -176,7 +241,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
       this.setState((prevState) => ({
         form: {
           ...prevState.form,
-          dob: date.toISOString().split('T')[0],
+          dob: date.toISOString().split("T")[0],
         },
       }));
     }
@@ -209,17 +274,127 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (this.validateForm()) {
-      console.log('Form data:', this.state.form);
-      const { firstName, lastName, dob, gender, city, street, country, state, zip, contact_no, profilePhoto } = this.state.form;
-      const updateForm = { firstName, lastName, dob, gender, address: { street, city, state, zip, country }, contact_no, profilePhoto }
-      this.props.updateProfile(updateForm);
+      const { isSlotChanged, isFormChanged } = this.state;
+      const {
+        firstName,
+        lastName,
+        dob,
+        gender,
+        city,
+        street,
+        country,
+        state,
+        zip,
+        contact_no,
+        profilePhoto,
+        slotAvailability,
+      } = this.state.form;
+      const updateForm = {
+        firstName,
+        lastName,
+        dob,
+        gender,
+        address: { street, city, state, zip, country },
+        contact_no,
+        profilePhoto,
+      };
+      if(isFormChanged){
+        this.props.updateProfile(updateForm);
+      }
+      if (isSlotChanged) {
+        this.generateSlotBodyRequest(slotAvailability);
+      }
       this.toggleEditMode();
     }
   };
 
+  generateSlotBodyRequest(slotAvailability: { [key: string]: boolean[] }) {
+    console.log(slotAvailability);
+    
+    const date = new Date();
+    const startDate = new Date();
+    const endDate = new Date(date.setMonth(date.getMonth() + 1));
+    const noOfMinPerSlot = 30;
+    const slots = [];
+    for (const day in slotAvailability) {
+      const slotsArr = slotAvailability[day];
+      const shouldNotSkip = slotsArr.some((val) => val === true);
+      console.log(`${day}: ${shouldNotSkip} \t ${slotsArr}`);
+      console.log(slotsArr);
+      
+      let startTime = "";
+      let endTime = "";
+      if (shouldNotSkip) {
+        if (slotsArr[0]) {
+          let obj: {
+            [key: string]: Object;
+          } = {};
+          obj["day"] = day;    
+          startTime = "07:00";
+          endTime = "11:00";
+          obj["slot"] = {
+            startTime: startTime,
+            endTime: endTime,
+          };
+          slots.push(obj);  
+        }
+        if (slotsArr[1]) {
+          let obj: {
+            [key: string]: Object;
+          } = {};
+          obj["day"] = day;    
+          startTime = "11:00";
+          endTime = "15:00";
+          obj["slot"] = {
+            startTime: startTime,
+            endTime: endTime,
+          };
+          slots.push(obj);  
+        }
+        if (slotsArr[2]) {
+          let obj: {
+            [key: string]: Object;
+          } = {};
+          obj["day"] = day;    
+          startTime = "15:00";
+          endTime = "19:00";
+          obj["slot"] = {
+            startTime: startTime,
+            endTime: endTime,
+          };
+          slots.push(obj);  
+        }
+        if (slotsArr[3]) {
+          let obj: {
+            [key: string]: Object;
+          } = {};
+          obj["day"] = day;    
+          startTime = "19:00";
+          endTime = "23:00";
+          obj["slot"] = {
+            startTime: startTime,
+            endTime: endTime,
+          };
+          slots.push(obj);  
+        }
+      }
+    }
+    const reqBody = {
+      doctorId: this.state.doctorId,
+      fromDate: startDate.toISOString(),
+      toDate: endDate.toISOString(),
+      noOfMinPerSlot: noOfMinPerSlot,
+      slots: slots,
+    };
+    console.log(reqBody);
+
+    this.props.addSlots(reqBody);
+  }
+
   handleSlotChange = (day: string, newValue: boolean[]) => {
-    console.log(day, newValue);    
+    console.log(day, newValue);
     this.setState((prevState) => ({
+      isSlotChanged: true,
       form: {
         ...prevState.form,
         slotAvailability: {
@@ -238,7 +413,11 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         <div className="profile-header">
           <h2 className="text-center">My Profile</h2>
           {!isEditMode && (
-            <Button variant="primary" className="edit-profile-btn" onClick={this.toggleEditMode}>
+            <Button
+              variant="primary"
+              className="edit-profile-btn"
+              onClick={this.toggleEditMode}
+            >
               Edit Profile
             </Button>
           )}
@@ -466,160 +645,165 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     </Form.Group>
                   </Col>
                 </Row>
-                {
-                  this.props.role === 'Doctor' && (
-                    <fieldset>
-                      <legend>Doctor Details</legend>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group controlId="licenseNumber">
-                            <Form.Label>License Number</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="licenseNumber"
-                              value={form.licenseNumber}
-                              onChange={this.handleChange}
-                              isInvalid={!!errors.licenseNumber}
-                              disabled={!isEditMode}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.licenseNumber}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group controlId="speciality">
-                            <Form.Label>Speciality</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="speciality"
-                              value={form.speciality}
-                              onChange={this.handleChange}
-                              isInvalid={!!errors.speciality}
-                              disabled={!isEditMode}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.speciality}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                      <Row>
-                        <Col md={6}>
-                          <Form.Group controlId="clinicName">
-                            <Form.Label>Clinic Name</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="clinicName"
-                              value={form.clinicName}
-                              onChange={this.handleChange}
-                              isInvalid={!!errors.clinicName}
-                              disabled={!isEditMode}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.clinicName}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                        <Col md={6}>
-                          <Form.Group controlId="yearsOfExperience">
-                            <Form.Label>Years of Experience</Form.Label>
-                            <Form.Control
-                              type="text"
-                              name="yearsOfExperience"
-                              value={form.yearsOfExperience}
-                              onChange={this.handleChange}
-                              isInvalid={!!errors.yearsOfExperience}
-                              disabled={!isEditMode}
-                            />
-                            <Form.Control.Feedback type="invalid">
-                              {errors.yearsOfExperience}
-                            </Form.Control.Feedback>
-                          </Form.Group>
-                        </Col>
-                      </Row>
-                    </fieldset>
-                  )
-                }
-                {
-                  this.props.role === 'FrontDesk' && (
-                    <fieldset>
-                      <legend>Staff Details</legend>
-                      <Form.Group controlId="staffNumber">
-                        <Form.Label>Staff Number</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="staffNumber"
-                          value={form.staffNumber}
-                          onChange={this.handleChange}
-                          disabled={!isEditMode}
-                        />
-                      </Form.Group>
-                    </fieldset>
-                  )
-                }
-                {
-                  this.props.role === 'Patient' && (
-                    <fieldset>
-                      <legend>Patient Details</legend>
-                      <Form.Group controlId="insuranceDetails">
-                        <Form.Label>Insurance Number</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="insuranceDetails"
-                          value={form.insuranceDetails}
-                          onChange={this.handleChange}
-                          disabled={!isEditMode}
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="emergencyContact">
-                        <Form.Label>Emergency Contact</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="emergencyContact"
-                          value={form.emergencyContact}
-                          onChange={this.handleChange}
-                          disabled={!isEditMode}
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="healthCardDetails">
-                        <Form.Label>Health Card Number</Form.Label>
-                        <Form.Control
-                          type="text"
-                          name="healthCardDetails"
-                          value={form.healthCardDetails}
-                          onChange={this.handleChange}
-                          disabled={!isEditMode}
-                        />
-                      </Form.Group>
-                      <Form.Group controlId="healthHistory">
-                        <Form.Label>Health History</Form.Label>
-                        <Form.Control
-                          as="textarea"
-                          name="healthHistory"
-                          value={form.healthHistory}
-                          onChange={this.handleChange}
-                          disabled={!isEditMode}
-                        />
-                      </Form.Group>
-                    </fieldset>
-                  )
-                }
-                {/* {Object.keys(form.slotAvailability).map((day) => (
+                {this.props.role === "Doctor" && (
+                  <fieldset>
+                    <legend>Doctor Details</legend>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group controlId="licenseNumber">
+                          <Form.Label>License Number</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="licenseNumber"
+                            value={form.licenseNumber}
+                            onChange={this.handleChange}
+                            isInvalid={!!errors.licenseNumber}
+                            disabled={!isEditMode}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.licenseNumber}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group controlId="speciality">
+                          <Form.Label>Speciality</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="speciality"
+                            value={form.speciality}
+                            onChange={this.handleChange}
+                            isInvalid={!!errors.speciality}
+                            disabled={!isEditMode}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.speciality}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col md={6}>
+                        <Form.Group controlId="clinicName">
+                          <Form.Label>Clinic Name</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="clinicName"
+                            value={form.clinicName}
+                            onChange={this.handleChange}
+                            isInvalid={!!errors.clinicName}
+                            disabled={true}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.clinicName}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                      <Col md={6}>
+                        <Form.Group controlId="yearsOfExperience">
+                          <Form.Label>Years of Experience</Form.Label>
+                          <Form.Control
+                            type="text"
+                            name="yearsOfExperience"
+                            value={form.yearsOfExperience}
+                            onChange={this.handleChange}
+                            isInvalid={!!errors.yearsOfExperience}
+                            disabled={!isEditMode}
+                          />
+                          <Form.Control.Feedback type="invalid">
+                            {errors.yearsOfExperience}
+                          </Form.Control.Feedback>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </fieldset>
+                )}
+                {this.props.role === "FrontDesk" && (
+                  <fieldset>
+                    <legend>Staff Details</legend>
+                    <Form.Group controlId="staffNumber">
+                      <Form.Label>Staff Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="staffNumber"
+                        value={form.staffNumber}
+                        onChange={this.handleChange}
+                        disabled={!isEditMode}
+                      />
+                    </Form.Group>
+                  </fieldset>
+                )}
+                {this.props.role === "Patient" && (
+                  <fieldset>
+                    <legend>Patient Details</legend>
+                    <Form.Group controlId="insuranceDetails">
+                      <Form.Label>Insurance Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="insuranceDetails"
+                        value={form.insuranceDetails}
+                        onChange={this.handleChange}
+                        disabled={!isEditMode}
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="emergencyContact">
+                      <Form.Label>Emergency Contact</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="emergencyContact"
+                        value={form.emergencyContact}
+                        onChange={this.handleChange}
+                        disabled={!isEditMode}
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="healthCardDetails">
+                      <Form.Label>Health Card Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="healthCardDetails"
+                        value={form.healthCardDetails}
+                        onChange={this.handleChange}
+                        disabled={!isEditMode}
+                      />
+                    </Form.Group>
+                    <Form.Group controlId="healthHistory">
+                      <Form.Label>Health History</Form.Label>
+                      <Form.Control
+                        as="textarea"
+                        name="healthHistory"
+                        value={form.healthHistory}
+                        onChange={this.handleChange}
+                        disabled={!isEditMode}
+                      />
+                    </Form.Group>
+                  </fieldset>
+                )}
+                  <Form.Group>
+                  <legend>Availability</legend>                
+                {Object.keys(form.slotAvailability).map((day) => (
                   <div key={day}>
-                    <h4>{day}</h4>
+                    <Form.Group>{day}</Form.Group>
                     <SelectButtonGroup
                       day={day}
                       value={form.slotAvailability[day]}
-                      onChange={(day, newValue) => this.handleSlotChange(day, newValue)}
+                      onChange={(day, newValue) =>
+                        this.handleSlotChange(day, newValue)
+                      }
+                      disabled={!this.state.isEditMode}
                     />
                   </div>
-                ))}                 */}
+                ))}
+                </Form.Group>
+                <br/>
                 {isEditMode && (
                   <div className="edit-buttons">
-                    <Button variant="secondary" className="cancel-btn" onClick={this.toggleEditMode}>
+                    <Button
+                      variant="secondary"
+                      className="cancel-btn"
+                      onClick={this.toggleEditMode}
+                    >
                       Cancel
-                    </Button>{' '}
+                    </Button>{" "}
                     &nbsp;&nbsp;
                     <Button variant="primary" type="submit">
                       Save Changes
@@ -643,6 +827,7 @@ const mapStateToProps = (state: any) => ({
 const mapDispatchToProps = (dispatch: any) => ({
   getProfile: () => dispatch(getProfileRequest()),
   updateProfile: (userData: any) => dispatch(updateProfileRequest(userData)),
+  addSlots: (addSlotsRequestBody: any) => dispatch(addSlotsRequest(addSlotsRequestBody))
 });
 
 
