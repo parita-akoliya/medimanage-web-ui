@@ -108,7 +108,7 @@ function* verifyOtpSaga(action: Actions): any {
     const response = yield call(authApi.verifyOtp, otp, email);
     yield call(handleToast, 'Otp verified. Login successful', 'success');
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data.role);
-    yield put(verifyOtpSuccess(response.data.token, response.data.role));
+    yield put(verifyOtpSuccess(response.data.token, response.data.role, response.data.name));
   } catch (error: any) {
     yield call(handleToast, error?.response?.data?.error || error?.response?.data?.message || `Otp verification failed. Please try again. Error: ${error.stack}`, 'error');
     yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');

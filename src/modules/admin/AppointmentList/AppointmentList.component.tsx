@@ -1,95 +1,120 @@
-// src/components/AppointmentList.tsx
 import React, { Component } from 'react';
-import { Container, Form, Table, Button, Row, Col } from 'react-bootstrap';
+import { Container, Form, Table, Button, Row, Col, Modal, Tooltip, OverlayTrigger } from 'react-bootstrap';
+import { getAppointmentRequest, updateAppointmentRequest } from '../../../store/actions/slotActions';
+import { NavigateFunction, useNavigate, useParams } from 'react-router';
+import { connect } from 'react-redux';
+import { XCircle, Eye, CalendarCheck } from 'react-bootstrap-icons';
 
+// Define the types
 interface Patient {
-  id: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNumber: string;
-  status: string;
-  instanceNumber: string;
+  _id: string;
+  user: {
+    firstName: string;
+    lastName: string;
+  }
 }
 
 interface Appointment {
-  id: number;
-  patient: Patient;
-  date: Date;
-  time: string;
+  _id: string;
+  patient_id: Patient | null;
+  reason: string;
+  status?: string;
+  slot_id: {
+    start_time: string;
+    end_time: string;
+  } | null;
+  clinic_id: {
+    name: string;
+  };
+}
+
+interface AppointmentListProps {
+  navigate: NavigateFunction;
+  getAppointments: (onCallSuccess?: Function | void) => void;
+  updateAppointments: (appointmentId: string, status: string, onCallSuccess?: Function | void) => void;
+  appointments: Appointment[];
 }
 
 interface AppointmentListState {
   searchTerm: string;
   filterOption: 'all' | 'today';
   appointments: Appointment[];
+  showModal: boolean;
+  selectedAppointment: Appointment | null;
 }
 
-class AppointmentList extends Component<{}, AppointmentListState> {
-  constructor(props: {}) {
+function withRouter(Component: any) {
+  function ComponentWithRouter(props: any) {
+    let params = useParams();
+    let navigate = useNavigate();
+    return <Component {...props} params={params} navigate={navigate} />;
+  }
+  return ComponentWithRouter;
+}
+
+class AppointmentList extends Component<AppointmentListProps, AppointmentListState> {
+  constructor(props: AppointmentListProps) {
     super(props);
     this.state = {
       searchTerm: '',
       filterOption: 'all',
-      appointments: [
-        {
-          id: 1,
-          patient: {
-            id: 1,
-            firstName: 'John',
-            lastName: 'Doe',
-            email: 'john.doe@example.com',
-            contactNumber: '1234567890',
-            status: 'Scheduled',
-            instanceNumber: 'INST123'
-          },
-          date: new Date(),
-          time: '10:00 AM'
-        },
-        {
-          id: 2,
-          patient: {
-            id: 2,
-            firstName: 'Jane',
-            lastName: 'Smith',
-            email: 'jane.smith@example.com',
-            contactNumber: '0987654321',
-            status: 'Completed',
-            instanceNumber: 'INST124'
-          },
-          date: new Date(),
-          time: '11:00 AM'
-        }
-      ] // Added sample appointments
+      appointments: [],
+      showModal: false,
+      selectedAppointment: null
     };
+  }
+
+  componentDidMount(): void {
+    this.props.getAppointments();
   }
 
   handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ searchTerm: e.target.value });
-  }
+  };
+
+  handleAttend = (appointmentId: string) => {
+    this.props.navigate(`/admin/patient-attend/${appointmentId}`);
+  };
+
 
   handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     this.setState({ filterOption: e.target.value as 'all' | 'today' });
-  }
+  };
 
-  handleCancel = (appointmentId: number) => {
-    // Handle cancellation logic
-  }
+  handleView = (appointment: Appointment) => {
+    this.setState({ selectedAppointment: appointment, showModal: true });
+  };
 
-  handleView = (appointmentId: number) => {
-    // Handle view details logic
+  handleCloseModal = () => {
+    this.setState({ showModal: false, selectedAppointment: null });
+  };
+
+  handleReject = (appointmentId: string) => {
+    this.props.updateAppointments(appointmentId, 'Rejected', ()=> {
+      this.props.getAppointments()
+    })
+    if(this.state.showModal){
+      this.handleCloseModal();
+    }
+  };
+
+  renderTooltip(text: string) {
+    return <Tooltip id={`tooltip-${text}`}>{text}</Tooltip>;
   }
 
   render() {
-    const { searchTerm, filterOption, appointments } = this.state;
-
+    const { searchTerm, filterOption, showModal, selectedAppointment } = this.state;
+    const { appointments } = this.props;
+    console.log(appointments);
+    
     const filteredAppointments = appointments.filter(appointment => {
-      // Filter based on search term and filter option
-      const patientInfo = `${appointment.patient.firstName} ${appointment.patient.lastName} ${appointment.patient.email} ${appointment.patient.contactNumber}`;
+      const patientInfo = appointment.patient_id
+        ? `${appointment.patient_id.user.firstName} ${appointment.patient_id.user.lastName}`
+        : '';
       const isMatch = patientInfo.toLowerCase().includes(searchTerm.toLowerCase());
       if (filterOption === 'today') {
         const today = new Date();
-        return isMatch && appointment.date.toLocaleDateString() === today.toLocaleDateString();
+        return isMatch && new Date(appointment.slot_id?.start_time || '').toLocaleDateString() === today.toLocaleDateString();
       }
       return isMatch;
     });
@@ -102,16 +127,13 @@ class AppointmentList extends Component<{}, AppointmentListState> {
             <Col md={8}>
               <Form.Control
                 type="text"
-                placeholder="Search by name, email, or contact number"
+                placeholder="Search by patient name"
                 value={searchTerm}
                 onChange={this.handleSearchChange}
               />
             </Col>
             <Col md={4}>
-              <Form.Select
-                value={filterOption}
-                onChange={this.handleFilterChange}
-              >
+              <Form.Select value={filterOption} onChange={this.handleFilterChange}>
                 <option value="all">All</option>
                 <option value="today">Today</option>
               </Form.Select>
@@ -123,42 +145,94 @@ class AppointmentList extends Component<{}, AppointmentListState> {
             <tr>
               <th>First Name</th>
               <th>Last Name</th>
-              <th>Email</th>
-              <th>Contact Number</th>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Instance Number</th>
+              <th>Reason</th>
+              <th>Slot Start Time</th>
+              <th>Slot End Time</th>
+              <th>Clinic Name</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filteredAppointments.map(appointment => (
-              <tr key={appointment.id}>
-                <td>{appointment.patient.firstName}</td>
-                <td>{appointment.patient.lastName}</td>
-                <td>{appointment.patient.email}</td>
-                <td>{appointment.patient.contactNumber}</td>
-                <td>{appointment.date.toLocaleDateString()}</td>
-                <td>{appointment.time}</td>
-                <td>{appointment.patient.instanceNumber}</td>
-                <td>{appointment.patient.status}</td>
+              <tr key={appointment._id}>
+                <td>{appointment.patient_id?.user.firstName || 'N/A'}</td>
+                <td>{appointment.patient_id?.user.lastName || 'N/A'}</td>
+                <td>{appointment.reason}</td>
+                <td>{new Date(appointment.slot_id?.start_time || '').toLocaleTimeString()}</td>
+                <td>{new Date(appointment.slot_id?.end_time || '').toLocaleTimeString()}</td>
+                <td>{appointment.clinic_id.name}</td>
+                <td>{appointment.status}</td>
                 <td>
-                  <Button variant="danger" onClick={() => this.handleCancel(appointment.id)}>
-                    Cancel
-                  </Button>{' '}
-                  <Button variant="primary" onClick={() => this.handleView(appointment.id)}>
-                    View
+                {(appointment.status !== "Rejected" && appointment.status !== "Not Available") && 
+                  <OverlayTrigger
+                  placement="top"
+                  overlay={this.renderTooltip('Reject')}
+                >
+                  <Button variant="link" onClick={() => this.handleReject(appointment._id)}>
+                    <XCircle />
                   </Button>
+                </OverlayTrigger>
+            }
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={this.renderTooltip('View')}
+                  >
+                    <Button variant="link" onClick={() => this.handleView(appointment)}>
+                      <Eye />
+                    </Button>
+                  </OverlayTrigger>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={this.renderTooltip('Attend')}
+                  >
+                    <Button variant="link" onClick={() => this.handleAttend(appointment._id)}>
+                      <CalendarCheck />
+                    </Button>
+                  </OverlayTrigger>
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
+
+        {selectedAppointment && (
+          <Modal show={showModal} onHide={this.handleCloseModal}>
+            <Modal.Header closeButton>
+              <Modal.Title>Appointment Details</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <p><strong>First Name:</strong> {selectedAppointment.patient_id?.user.firstName || 'N/A'}</p>
+              <p><strong>Last Name:</strong> {selectedAppointment.patient_id?.user.lastName || 'N/A'}</p>
+              <p><strong>Reason:</strong> {selectedAppointment.reason}</p>
+              <p><strong>Slot Start Time:</strong> {new Date(selectedAppointment.slot_id?.start_time || '').toLocaleTimeString()}</p>
+              <p><strong>Slot End Time:</strong> {new Date(selectedAppointment.slot_id?.end_time || '').toLocaleTimeString()}</p>
+              <p><strong>Clinic Name:</strong> {selectedAppointment.clinic_id.name}</p>
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={this.handleCloseModal}>
+                Close
+              </Button>
+              {(selectedAppointment.status !== "Rejected" && selectedAppointment.status !== "Not Available") && 
+                  <Button variant="danger" onClick={()=>this.handleReject(selectedAppointment._id)}>
+                  Reject
+                  </Button>
+              }
+            </Modal.Footer>
+          </Modal>
+        )}
       </Container>
     );
   }
 }
 
+const mapStateToProps = (state: any) => ({
+  appointments: state.appointments.appointments,
+});
 
-export default AppointmentList;
+const mapDispatchToProps = (dispatch: any) => ({
+  getAppointments: (onCallSuccess?: Function) => dispatch(getAppointmentRequest(onCallSuccess)),
+  updateAppointments: (appointmentId: string, status: string, onCallSuccess?: Function) => dispatch(updateAppointmentRequest(appointmentId, status, onCallSuccess))
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(AppointmentList));

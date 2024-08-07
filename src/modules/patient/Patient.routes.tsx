@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, RouteObject } from 'react-router-dom';
-import ClientDashboard from './Dashboard/Dashboard.component';
+import ClientProfile from './ClientProfile/ClientProfile.component';
 import ClientMainLayout from './MainLayout/MainLayout.component';
 import ClientHome from './Home/ClientHome.component';
 import FindDoctor from './FindDoctor/FindDoctor.component';
@@ -16,14 +16,15 @@ const Root: React.FC = () => {
 };
 
 const clientChildren: RouteObject[] = [
-  { path: 'dashboard', element: <ProtectedRoute component={ClientDashboard} /> },
+  { path: 'profile', element: <ProtectedRoute component={ClientProfile} /> },
   { path: '', element: <UnProtectedRoute component={ClientHome} /> },
   { path: 'home', element: <ClientHome /> },
   { path: 'find-doctor', element: <FindDoctor/> },
+  { path: 'find-doctor/clinic/:clinic_id', element: <FindDoctor/> },
   { path: 'find-clinic', element: <FindClinic/> },
   { path: 'auth', element: <UnProtectedRoute component={Root}/>, children: AuthRoutes },
   { path: 'profile', element: <UnProtectedRoute component={ProfileComponent}/> },
-  { path: 'doctor-clinic-info/:id', element: <UnProtectedRoute component={DoctorClinicProfile}/> },
+  { path: 'doctor-clinic-info/:id', element: <DoctorClinicProfile/> },
 
 
 ];

@@ -1,4 +1,4 @@
-import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, FILTER_SLOTS_FAILURE, FILTER_SLOTS_REQUEST, FILTER_SLOTS_SUCCESS, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS } from "../types/slotTypes";
+import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, FILTER_SLOTS_FAILURE, FILTER_SLOTS_REQUEST, FILTER_SLOTS_SUCCESS, GET_APPOINTMENT_FAILURE, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE, UPDATE_APPOINTMENT_REQUEST, UPDATE_APPOINTMENT_SUCCESS } from "../types/slotTypes";
 
 export const addSlotsRequest = (query: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
     type: ADD_SLOTS_REQUEST,
@@ -79,8 +79,25 @@ export const getAppointmentSuccess = (data: any) => ({
     payload: data
 });
 
-export const GET_APPOINTMENT_FAILURE = (error: any) => ({
-    type: SCHEDULE_APPOINTMENT_FAILURE,
+export const getAppointmentFailure = (error: any) => ({
+    type: GET_APPOINTMENT_FAILURE,
+    payload: error
+});
+
+export const updateAppointmentRequest = (appointmentId: string, status: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: UPDATE_APPOINTMENT_REQUEST,
+    payload:{appointmentId, status},
+    callbacks: {onCallSuccess,
+    onCallFail}
+});
+
+export const updateAppointmentSuccess = (data: any) => ({
+    type: UPDATE_APPOINTMENT_SUCCESS,
+    payload: data
+});
+
+export const updateAppointmentFailure = (error: any) => ({
+    type: UPDATE_APPOINTMENT_FAILURE,
     payload: error
 });
 

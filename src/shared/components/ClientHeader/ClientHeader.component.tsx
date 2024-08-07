@@ -8,6 +8,7 @@ import { connect } from 'react-redux';
 interface ClientHeaderProps {
     isAuthenticated: boolean;
     role: string;
+    name: string;
     logoutUser: () => void;
 }
 
@@ -26,12 +27,9 @@ class ClientHeader extends Component<ClientHeaderProps, ClientHeaderState> {
     }
 
     toggleDropdown() {
-        console.log(this.state.dropdownOpen);
         this.setState({
             dropdownOpen: !this.state.dropdownOpen
         });
-        console.log(this.state);
-
     }
     handleOutsideClick(event: any) {
         if (this.state.dropdownOpen && !event.target.closest('.user-menu')) {
@@ -63,14 +61,14 @@ class ClientHeader extends Component<ClientHeaderProps, ClientHeaderState> {
                             <div className="user-menu">
                             <div className="user-info" onClick={this.toggleDropdown}>
                                 <FaUser className="user-icon" />
-                                <span className="user-name">Username</span>
+                                <span className="user-name">{this.props.name}</span>
                             </div>
                             {/* {this.state.dropdownOpen && ( */}
                                <ul className={`dropdown-menu ${this.state.dropdownOpen ? 'active' : ''}`}>
                             
                                     <li><a href="/client/profile">My Profile</a></li>
                                     <li onClick={this.props.logoutUser}><a href="#">Logout</a></li>
-                                    <li><a href="#">Report</a></li>
+                                    {/* <li><a href="#">Report</a></li> */}
                                 </ul>
                             {/* )} */}
                         </div>    
@@ -85,6 +83,7 @@ class ClientHeader extends Component<ClientHeaderProps, ClientHeaderState> {
 
 const mapStateToProps = (state: any) => ({
     role: state?.auth?.role,
+    name: state?.auth?.name,
     isAuthenticated: state?.auth?.isAuthenticated
   });
   

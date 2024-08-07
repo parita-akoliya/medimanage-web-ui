@@ -1,0 +1,48 @@
+.client-profile-container {
+  margin-top: 20px;
+}
+
+.profile-header {
+  margin-bottom: 20px;
+}
+
+.profile-card,
+.appointments-card {
+  margin-bottom: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card .card-title,
+.appointments-card .card-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.appointment-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.appointment-list li {
+  border-bottom: 1px solid #ddd;
+  padding: 10px 0;
+}
+
+.nav-tabs .nav-link {
+  border-radius: 0;
+  margin-right: 15px;
+  padding: 10px 20px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.nav-tabs .nav-link.active {
+  color: #fff;
+  background-color: #007bff;
+  border-color: #007bff;
+}
+
+.nav-tabs .nav-link:hover {
+  background-color: #e9ecef;
+}

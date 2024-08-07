@@ -40,8 +40,6 @@ class AdminDashboardLayout extends Component<AdminDashboardLayoutProps, AdminDas
     const widthLimit = 576;
     const isMobile = width <= widthLimit;
     const wasMobile = this.previousWidth <= widthLimit;
-    console.log(isMobile, wasMobile, widthLimit);
-    
     if (isMobile !== wasMobile) {
       this.setState({
         isOpen: !isMobile
@@ -56,8 +54,6 @@ class AdminDashboardLayout extends Component<AdminDashboardLayoutProps, AdminDas
   };
 
   toggle = () => {
-    console.log("fgfgf");
-
     this.setState({ isOpen: !this.state.isOpen });
   };
 

@@ -11,6 +11,7 @@ import {
     UPDATE_DOCTOR_REQUEST,
     UPDATE_DOCTOR_SUCCESS,
     UPDATE_DOCTOR_FAILURE,
+    GET_DOCTOR_BY_CLINIC_ID_SUCCESS,
 } from '../types/doctorTypes';
 import { SEARCH_DOCTORS_FAILURE, SEARCH_DOCTORS_REQUEST, SEARCH_DOCTORS_SUCCESS } from '../types/searchTypes';
 import { AVAILABLE_SLOTS_SUCCESS, FILTER_SLOTS_REQUEST } from '../types/slotTypes';
@@ -42,14 +43,26 @@ const initialState: DoctorState = {
 };
 
 const doctors = (state = initialState, action: any): DoctorState => {
+    console.log(action);
+    
     switch (action.type) {
         case AVAILABLE_SLOTS_SUCCESS:
+            let filteredSlots:any[]= []
+            if(state.slots.dateSelected){
+                action.payload.forEach((slot: any) => {
+                    const slotDate = new Date(slot.start_time).toDateString();
+                    const filterDate = state.slots.dateSelected;                
+                    if(slotDate === filterDate){
+                        filteredSlots.push(slot)
+                    }
+                });    
+            }
             return {
                 ...state,
                 loading: false,
                 slots: {
                     slots:action.payload,
-                    filtered:state.slots.filtered,
+                    filtered:filteredSlots,
                     dateSelected:state.slots.dateSelected
                 },
             };
@@ -57,11 +70,8 @@ const doctors = (state = initialState, action: any): DoctorState => {
             let finalSlots:any[]= []
             state.slots.slots.forEach(slot => {
                 const slotDate = new Date(slot.start_time).toDateString();
-                const filterDate = new Date(action.payload).toDateString();
-                
+                const filterDate = new Date(action.payload).toDateString();                
                 if(slotDate === filterDate){
-                    console.log("tefjbdfjb");
-                    
                     finalSlots.push(slot)
                 }
             });
@@ -72,7 +82,7 @@ const doctors = (state = initialState, action: any): DoctorState => {
                 slots: {
                     slots: state.slots.slots,
                     filtered:finalSlots,
-                    dateSelected:state.slots.dateSelected
+                    dateSelected:new Date(action.payload).toDateString()
                 },
             };
         case GET_ALL_DOCTORS_REQUEST:
@@ -83,6 +93,12 @@ const doctors = (state = initialState, action: any): DoctorState => {
                 ...state,
                 loading: true,
                 error: null,
+            };
+        case GET_DOCTOR_BY_CLINIC_ID_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                doctors: action.payload,
             };
         case GET_ALL_DOCTORS_SUCCESS:
             return {

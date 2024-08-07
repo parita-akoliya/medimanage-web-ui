@@ -27,8 +27,6 @@ const initialState: UserState = {
 };
 
 const user = (state = initialState, action: any): UserState => {
-    console.log(action);
-    
     switch (action.type) {
         case CHANGE_ROLE_SUCCESS:
             localStorage.setItem('role', action.payload.role);
@@ -82,8 +80,6 @@ const user = (state = initialState, action: any): UserState => {
                 error: action.error,
             };
         case GET_ALL_USERS_SUCCESS:
-            console.log("aaaa",action);
-            
             return {
                 ...state,
                 users: action.payload,
