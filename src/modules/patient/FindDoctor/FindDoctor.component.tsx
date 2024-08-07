@@ -6,42 +6,48 @@ import doctor1 from '../../../images/doctor1.png';
 import { connect } from 'react-redux';
 import { searchDoctorsRequest } from '../../../store/actions/searchActions';
 import { NavigateFunction, useNavigate, useParams } from 'react-router';
-import { getAllDoctorsRequest } from '../../../store/actions/doctorActions';
+import { getAllDoctorsRequest, getDoctorByClinicIdRequest } from '../../../store/actions/doctorActions';
 
 interface FindDoctorProps {
   searchDoctors: (query?: any, onCallSuccess?: Function) => void;
+  getDoctorsByClinic: (clinicId: string, onCallSuccess?: Function) => void;
   navigate: NavigateFunction;
-  doctors: any
+  doctors: any;
+  params: any;
   getAllDoctors: (onCallSuccess?: Function) => void;
-
 }
 
 interface FindDoctorState {
   searchName: string;
   searchCity: string;
+  searchSpeciality: string;
 }
 
 function withRouter(Component: any) {
   function ComponentWithRouter(props: any) {
     let params = useParams();
     let navigate = useNavigate();
-    return <Component {...props} params={params} navigate={navigate}/>
+    return <Component {...props} params={params} navigate={navigate} />;
   }
-  return ComponentWithRouter
+  return ComponentWithRouter;
 }
-
 
 class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
   constructor(props: FindDoctorProps) {
     super(props);
     this.state = {
       searchName: '',
-      searchCity: ''
+      searchCity: '',
+      searchSpeciality: ''
     };
   }
 
   componentDidMount(): void {
-    this.props.getAllDoctors()
+    if(this.props.params.clinic_id){
+      this.props.getDoctorsByClinic(this.props.params.clinic_id)
+    } else {
+      this.props.getAllDoctors();
+    }
   }
 
   setSearchName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,25 +58,28 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
     this.setState({ searchCity: e.target.value });
   };
 
+  setSearchSpeciality = (e: React.ChangeEvent<HTMLInputElement>) => {
+    this.setState({ searchSpeciality: e.target.value });
+  };
+
+  handleSearch = () => {
+    const { searchName, searchCity, searchSpeciality } = this.state;
+    this.props.searchDoctors({
+      name: searchName,
+      location: searchCity,
+      speciality: searchSpeciality
+    });
+  };
+
   navigationToProfile = (data: any) => {
-    console.log(data);
     this.props.navigate(`/client/doctor-clinic-info/${data._id}`, { state: { data } });
   };
 
   render() {
-    console.log(this.props);
-    
-    const doctors = this.props.doctors;    
-    const { searchName, searchCity } = this.state;
-    let  filteredDoctors = doctors
-    if(searchName || searchCity){
-      filteredDoctors = doctors.filter((doctor: any) => {
-        return (
-          (doctor?.user?.firstName?.toLowerCase().includes(searchName?.toLowerCase()) || doctor?.user?.lastName?.toLowerCase().includes(searchName?.toLowerCase())) &&
-          doctor?.user?.address?.city?.toLowerCase().includes(searchCity?.toLowerCase())
-        );
-      });
-    }
+    const { doctors } = this.props;
+    const { searchName, searchCity, searchSpeciality } = this.state;
+
+    console.log(doctors);
     
 
     return (
@@ -78,15 +87,15 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
         <h1 className="find-doctor-header">Find a Doctor</h1>
         <Form>
           <Row className="mb-3">
-            <Col lg={6}>
+            <Col lg={4}>
               <Form.Control
                 type="text"
-                placeholder="Search by Doctor Name or Speciality"
+                placeholder="Search by Doctor Name"
                 value={searchName}
                 onChange={this.setSearchName}
               />
             </Col>
-            <Col lg={3}>
+            <Col lg={4}>
               <Form.Control
                 type="text"
                 placeholder="Enter Location"
@@ -94,27 +103,31 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
                 onChange={this.setSearchCity}
               />
             </Col>
-            <Col className="text-left" lg={3}>
-              <Button variant="primary" className="w-100">
+            <Col lg={4}>
+              <Form.Control
+                type="text"
+                placeholder="Enter Speciality"
+                value={searchSpeciality}
+                onChange={this.setSearchSpeciality}
+              />
+            </Col>
+            <Col className="text-left mt-3" lg={12}>
+              <Button variant="primary" className="w-100" onClick={this.handleSearch}>
                 Search
               </Button>
             </Col>
           </Row>
         </Form>
         <Row>
-          {filteredDoctors.map((doctor: any) => (
-            <Col md={4} key={doctor.id} className="mb-4">
+          {doctors.map((doctor: any) => (
+            <Col md={4} key={doctor._id} className="mb-4">
               <Card className="doctor-card">
                 <div className="doctor-image-wrapper">
                   <Card.Img variant="top" src={doctor.image ? doctor.image : doctor1} className="doctor-image" />
                 </div>
                 <Card.Body>
-                  <Card.Title>{doctor.name}</Card.Title>
+                  <Card.Title>{doctor.user.firstName} {doctor.user.lastName}</Card.Title>
                   <Card.Text className="doctor-info">
-                  <div className="doctor-info-item">
-                      <strong>Name:</strong>
-                      <span>{doctor.user.firstName} {doctor.user.lastName}</span>
-                    </div>
                     <div className="doctor-info-item">
                       <strong>Speciality:</strong>
                       <span>{doctor.speciality}</span>
@@ -140,13 +153,13 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
 }
 
 const mapStateToProps = (state: any) => ({
-  doctors: state.doctors.doctors,
+  doctors: state.doctors.doctors, // Adjust this based on where the searched doctors are stored
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   searchDoctors: (query?: any, onCallSuccess?: Function) => dispatch(searchDoctorsRequest(query, onCallSuccess)),
-  getAllDoctors: (onCallSuccess?: Function) => dispatch(getAllDoctorsRequest(onCallSuccess))
+  getAllDoctors: (onCallSuccess?: Function) => dispatch(getAllDoctorsRequest(onCallSuccess)),
+  getDoctorsByClinic: (clinicId: string, onCallSuccess?: Function) => dispatch(getDoctorByClinicIdRequest(clinicId, onCallSuccess))
 });
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(FindDoctor));

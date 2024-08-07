@@ -2,7 +2,6 @@ import React from 'react';
 import { Navigate, useLocation, RoutesProps } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { RootState } from '../../store/reducers';
-import { RoleTypes } from '../../store/types/RoleTypes';
 
 interface UnProtectedRouteRouteProps extends RoutesProps {
   component: React.ComponentType<any>;
@@ -18,7 +17,7 @@ const UnProtectedRouteComponent: React.FC<UnProtectedRouteRouteProps> = ({ compo
   let link = ''
   switch (role) {
     case 'Patient':
-      link = '/client/dashboard'
+      link = '/client/home'
       break;
     case 'Doctor':
     case 'FrontDesk':
@@ -26,7 +25,7 @@ const UnProtectedRouteComponent: React.FC<UnProtectedRouteRouteProps> = ({ compo
       link = '/admin/dashboard'
       break;
     default:
-      link = '/client/dashboard'
+      link = '/client/home'
       break;
   }
   return (!isToken && !isRole) ? (

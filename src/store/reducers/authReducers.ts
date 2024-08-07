@@ -18,6 +18,7 @@ export interface AuthState {
     token?: String | null;
     role?: String | null
     email?: string | null;
+    name?: string | null;
     error: string | null;
 }
 const token = localStorage.getItem('token');
@@ -27,6 +28,7 @@ const initialState: AuthState = {
     isAuthenticated: isAuthenticated,
     token: localStorage.getItem('token'),
     role: localStorage.getItem('role'),
+    name: localStorage.getItem('name'),
     error: null,
 };
 
@@ -41,21 +43,25 @@ const auth = (state = initialState, action: AuthActionTypes): AuthState => {
                 ...state,
                 token: null,
                 role: null,
+                name: '',
                 isAuthenticated: false
             }
         case VERIFY_OTP_SUCCESS:
             localStorage.setItem('role', action.payload.role);
             localStorage.setItem('token', action.payload.token);
+            localStorage.setItem('name', action.payload.name);
             return {
                 ...state,
                 token: action.payload.token,
-                role: action.payload.role
+                role: action.payload.role,
+                name: action.payload.name
             };
         case LOGIN_USER_SUCCESS:
             return {
                 ...state,
                 isAuthenticated: action.payload.verified,
                 email: action.payload.email,
+                name: `${action.payload.firstName} ${action.payload.lastName}`,
                 token: action.payload,
                 error: null,
             };

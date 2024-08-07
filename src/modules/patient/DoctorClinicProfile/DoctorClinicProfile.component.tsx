@@ -1,50 +1,54 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
+import { Container, Row, Col, Card, Form, Button, Modal } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './DoctorClinicProfile.css';
 import doctor1 from '../../../images/doctor1.png';
 import { getDoctorRequest } from '../../../store/actions/doctorActions';
-import { useNavigate, useParams } from 'react-router';
+import { NavigateFunction, useNavigate, useParams } from 'react-router';
 import { availableSlotsRequest, filterSlotsRequest, scheduleAppointmentRequest } from '../../../store/actions/slotActions';
 
 type DoctorClinicProfileProps = {
   slots: any;
   doctor: any | null;
   params: any;
+  navigate: NavigateFunction;
   getDoctor: (doctorId: string, onCallSuccess?: Function | void) => void;
   availableSlots: (doctorId: string) => void;
   filterSlots: (date: string | undefined) => void;
   scheduleAppointment: (body: any) => void;
+  isAuthenticated: boolean;
 };
 
 type DoctorClinicProfileState = {
   startDate: Date | null;
   timeSlot: string;
   symptoms: string;
+  showModal: boolean;
   formErrors: {
     date: string;
     timeSlot: string;
     symptoms: string;
   };
 };
+
 function withRouter(Component: any) {
   function ComponentWithRouter(props: any) {
     let params = useParams();
     let navigate = useNavigate();
-    return <Component {...props} params={params} navigate={navigate}/>
+    return <Component {...props} params={params} navigate={navigate} />;
   }
-  return ComponentWithRouter
+  return ComponentWithRouter;
 }
-
 
 class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClinicProfileState> {
   state: DoctorClinicProfileState = {
     startDate: new Date(),
     timeSlot: '',
     symptoms: '',
+    showModal: false,
     formErrors: {
       date: '',
       timeSlot: '',
@@ -56,11 +60,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
     // Fetch doctor details on component mount
     this.props.getDoctor(this.props.params.id);
     this.props.availableSlots(this.props.params.id);
-    this.props.filterSlots(new Date().toISOString())
-    console.log(this.state);
-    console.log(this.props);
-    
-    
+    this.props.filterSlots(new Date().toISOString());
   }
 
   validateForm = () => {
@@ -82,7 +82,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
       formIsValid = false;
     }
 
-    if (!symptoms) {
+    if (!symptoms.trim()) {
       errors.symptoms = 'Please describe your symptoms.';
       formIsValid = false;
     }
@@ -91,50 +91,51 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
     return formIsValid;
   };
 
+  handleCloseModal = () => {
+    this.setState({ showModal: false });
+  };
+
   handleBooking = (type: 'in-person' | 'online') => {
+    if (!this.props.isAuthenticated) {
+      this.setState({ showModal: true });
+      return;
+    }
+
     if (this.validateForm()) {
-      console.log('Booking type:', type);
-      console.log('Selected date:', this.state.startDate);
-      console.log('Selected time slot:', this.state.timeSlot);
-      console.log('Symptoms:', this.state.symptoms);
-      let { doctor } = this.props
-      if(doctor?.length>0){
-        doctor = doctor[0]
+      let { doctor } = this.props;
+      if (doctor?.length > 0) {
+        doctor = doctor[0];
       }
-  
-      
+
       const body = {
-        patientId: '669804d29aa1838981554d41',
         doctorId: this.props.params.id,
         slotId: this.state.timeSlot,
         clinicId: doctor.clinic._id,
-        reason: this.state.symptoms
-      }
-      console.log(body);
-      
-      this.props.scheduleAppointment(body)
+        reason: this.state.symptoms,
+      };
+      this.props.scheduleAppointment(body);
     } else {
       console.error('Form validation failed.');
     }
   };
 
   handleGoBack = () => {
-    // Handle navigation back
     window.history.back();
   };
 
-  render() {
-    console.log(this.props);
-    console.log(this.state);
-    
-    let { doctor, slots } = this.props;
-    const { startDate, timeSlot, symptoms, formErrors } = this.state;
-    console.log(doctor);
+  handleLogin = () => {
+    this.setState({ showModal: false });
+    this.props.navigate('/client/auth');
+  };
 
-    if(doctor?.length>0){
-      doctor = doctor[0]
+  render() {
+    let { doctor, slots } = this.props;
+    const { startDate, timeSlot, symptoms, formErrors, showModal } = this.state;
+
+    if (doctor?.length > 0) {
+      doctor = doctor[0];
     }
-    
+
     return (
       <Container className="doctor-profile-container">
         <Row>
@@ -165,27 +166,46 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
             <Form>
               <Form.Group controlId="appointmentDate">
                 <Form.Label>Select Date</Form.Label>
-                <DatePicker selected={startDate} onChange={(date: Date | null) => {this.setState({ startDate: date }); this.props.filterSlots(date?.toISOString())}} className="form-control" />
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date: Date | null) => {
+                    this.setState({ startDate: date });
+                    this.props.filterSlots(date?.toISOString());
+                  }}
+                  className="form-control"
+                  minDate ={new Date()}
+                />
                 <Form.Text className="text-danger">{formErrors.date}</Form.Text>
               </Form.Group>
               <Form.Group controlId="timeSlot">
                 <Form.Label>Select Time Slot</Form.Label>
-                <Form.Control as="select" value={timeSlot} onChange={(e) => this.setState({ timeSlot: e.target.value })}>
-    <option value="">Select a time slot</option>
-    {slots?.filtered?.length > 0 &&
-      slots.filtered.map((slot: any) => {
-        const startTime = new Date(slot.start_time).toLocaleTimeString();
-        const endTime = new Date(slot.end_time).toLocaleTimeString();
-        return (
-          <option key={slot._id} value={slot._id}>{`${startTime} - ${endTime}`}</option>
-        );
-      })}
-  </Form.Control>
+                <Form.Control
+                  as="select"
+                  value={timeSlot}
+                  onChange={(e) => this.setState({ timeSlot: e.target.value })}
+                >
+                  <option value="">Select a time slot</option>
+                  {slots?.filtered?.length > 0 &&
+                    slots.filtered.map((slot: any) => {
+                      const startTime = new Date(slot.start_time).toLocaleTimeString();
+                      const endTime = new Date(slot.end_time).toLocaleTimeString();
+                      return (
+                        <option key={slot._id} value={slot._id}>
+                          {`${startTime} - ${endTime}`}
+                        </option>
+                      );
+                    })}
+                </Form.Control>
                 <Form.Text className="text-danger">{formErrors.timeSlot}</Form.Text>
               </Form.Group>
               <Form.Group controlId="symptoms">
                 <Form.Label>Describe Your Symptoms</Form.Label>
-                <Form.Control as="textarea" rows={3} value={symptoms} onChange={(e) => this.setState({ symptoms: e.target.value })} />
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={symptoms}
+                  onChange={(e) => this.setState({ symptoms: e.target.value })}
+                />
                 <Form.Text className="text-danger">{formErrors.symptoms}</Form.Text>
               </Form.Group>
               <Row>
@@ -194,6 +214,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
                     Book In-Person Appointment
                   </Button>
                 </Col>
+                {/* Uncomment the following lines if you want to allow online appointments */}
                 {/* <Col>
                   <Button variant="primary" className="w-100" onClick={() => this.handleBooking('online')}>
                     Book Online Appointment
@@ -208,6 +229,22 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
             </Form>
           </Col>
         </Row>
+        <Modal show={showModal} onHide={this.handleCloseModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Login Required</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            You need to be logged in to book an appointment. Please log in to continue.
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={this.handleCloseModal}>
+              Close
+            </Button>
+            <Button variant="primary" onClick={this.handleLogin}>
+              Login
+            </Button>
+          </Modal.Footer>
+        </Modal>
       </Container>
     );
   }
@@ -215,7 +252,8 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
 
 const mapStateToProps = (state: any) => ({
   doctor: state.doctors.doctor,
-  slots: state.doctors.slots
+  slots: state.doctors.slots,
+  isAuthenticated: state.auth.isAuthenticated
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

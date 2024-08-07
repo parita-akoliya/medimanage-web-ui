@@ -3,6 +3,8 @@ import { Container, Row, Col, Card, Button } from 'react-bootstrap';
 import { FaStethoscope, FaUserMd, FaAmbulance, FaBaby, FaVideo, FaBrain, FaTooth, FaHome, FaCheck, FaEnvelope, FaPhone, FaGlobe } from 'react-icons/fa'; // Importing react-icons
 import './ClientHome.css';
 import bannerImage from '../../../images/bannerClient.jpg';
+import { getProfileRequest, updateProfileRequest } from '../../../store/actions/profileActions';
+import { connect } from 'react-redux';
 
 class ClientHome extends Component {
   render() {
@@ -159,4 +161,15 @@ class ClientHome extends Component {
   }
 }
 
-export default ClientHome;
+const mapStateToProps = (state: any) => ({
+  role: state?.auth?.role,
+  profileData: state?.profile?.profileData
+});
+
+const mapDispatchToProps = (dispatch: any) => ({
+  getProfile: () => dispatch(getProfileRequest()),
+  updateProfile: (userData: any) => dispatch(updateProfileRequest(userData)),
+});
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(ClientHome);

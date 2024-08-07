@@ -1,4 +1,3 @@
-import { CallbackFunctions } from '../../shared/models/Actions';
 import {
     SEARCH_CLINICS_REQUEST,
     SEARCH_CLINICS_SUCCESS,

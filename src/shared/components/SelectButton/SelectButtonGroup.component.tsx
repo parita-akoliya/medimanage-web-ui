@@ -14,8 +14,6 @@ const SelectButtonGroup: React.FC<SelectButtonGroupProps> = ({ day, value, onCha
     newValue[index] = !newValue[index];
     onChange(day, newValue);
   };
-  console.log(day, value);
-  
   return (
     <ToggleButtonGroup type="checkbox" value={value} onChange={() => {}}>
       <ToggleButton id={`${day}-btn-1`} checked={value[0]} value={0} onChange={() => handleToggle(0)} disabled={disabled} variant={value[0] ? 'primary' : 'secondary'}>

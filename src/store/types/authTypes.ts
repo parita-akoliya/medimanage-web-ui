@@ -104,7 +104,7 @@ interface VerifyOTPRequestAction {
 
 interface VerifyOTPSuccessAction {
     type: typeof VERIFY_OTP_SUCCESS;
-    payload: { token: string, role: string };
+    payload: { token: string, role: string, name: string };
 }
 
 interface VerifyOTPFailureAction {

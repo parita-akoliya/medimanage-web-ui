@@ -40,8 +40,6 @@ const clinic = (state = initialState, action: any): ClinicState => {
                 error: null,
             };
         case GET_CLINIC_DETAILS_SUCCESS:
-            console.log("clinic:",action);
-            
             return {
                 ...state,
                 clinics: action.payload,

@@ -45,7 +45,7 @@ export const registerSuccess = (onCallSuccess?: Function | void, onCallFail?: Fu
 
 export const registerFailure = (error: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: REGISTER_PATIENT_FAILURE, error, callbacks: { onCallSuccess, onCallFail } });
 
-export const verifyOtpSuccess = (token: string, role: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: VERIFY_OTP_SUCCESS, payload: { token, role }, callbacks: { onCallSuccess, onCallFail } });
+export const verifyOtpSuccess = (token: string, role: string, name:string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: VERIFY_OTP_SUCCESS, payload: { token, role, name }, callbacks: { onCallSuccess, onCallFail } });
 
 export const verifyOtpFailure = (error: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({ type: VERIFY_OTP_FAILURE, error, callbacks: { onCallSuccess, onCallFail } });
 

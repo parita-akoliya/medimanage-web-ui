@@ -10,7 +10,7 @@ import {
     SEARCH_DOCTORS_FAILURE
 } from '../types/searchTypes';
 import clientApi from '../../shared/api/clientApi';
-import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, GET_APPOINTMENT_FAILURE, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS } from '../types/slotTypes';
+import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, GET_APPOINTMENT_FAILURE, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE, UPDATE_APPOINTMENT_REQUEST, UPDATE_APPOINTMENT_SUCCESS } from '../types/slotTypes';
 
 function handleToast(message: string, type: string) {
     if (type === 'success') {
@@ -31,7 +31,7 @@ function* handleCallbacks(callbacks: CallbackFunctions | void, type: string, ...
 function* searchClinicsSaga(action: Actions): Generator<any, any, any> {
     try {
         const response = yield call(clientApi.searchClinics, action.payload);
-        yield call(handleToast, response.data.message || 'Clinics fetched successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Clinics fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
         yield put({ type: SEARCH_CLINICS_SUCCESS, payload: response.data });
     } catch (error: any) {
@@ -44,7 +44,7 @@ function* searchClinicsSaga(action: Actions): Generator<any, any, any> {
 function* searchDoctorsSaga(action: Actions): Generator<any, any, any> {
     try {
         const response = yield call(clientApi.searchDoctors, action.payload);
-        yield call(handleToast, response.data.message || 'Doctors fetched successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Doctors fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
         yield put({ type: SEARCH_DOCTORS_SUCCESS, payload: response.data });
     } catch (error: any) {
@@ -57,7 +57,7 @@ function* searchDoctorsSaga(action: Actions): Generator<any, any, any> {
 function* addSlotsSaga(action: Actions): Generator<any, any, any> {
     try {
         const response = yield call(clientApi.addSlots, action.payload);
-        yield call(handleToast, response.data.message || 'Slots added successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Slots added successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
         yield put({ type: ADD_SLOTS_SUCCESS, payload: response.data });
     } catch (error: any) {
@@ -70,7 +70,7 @@ function* addSlotsSaga(action: Actions): Generator<any, any, any> {
 function* availableSlotsSaga(action: Actions): Generator<any, any, any> {
     try {
         const response = yield call(clientApi.availableSlots, action.payload);
-        yield call(handleToast, response.data.message || 'Slots fetched successfully.', 'success');
+        // yield call(handleToast, response.data.message || 'Slots fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
         yield put({ type: AVAILABLE_SLOTS_SUCCESS, payload: response.data });
     } catch (error: any) {
@@ -95,8 +95,8 @@ function* scheduleAppointmentSagas(action: Actions): Generator<any, any, any> {
 
 function* getAppointmentSagas(action: Actions): Generator<any, any, any> {
     try {
-        const response = yield call(clientApi.getAppointments, action.payload);
-        yield call(handleToast, response.data.message || 'Appointment fetched successfully.', 'success');
+        const response = yield call(clientApi.getAppointments);
+        // yield call(handleToast, response.data.message || 'Appointment fetched successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
         yield put({ type: GET_APPOINTMENT_SUCCESS, payload: response.data });
     } catch (error: any) {
@@ -106,6 +106,18 @@ function* getAppointmentSagas(action: Actions): Generator<any, any, any> {
     }
 }
 
+function* updateAppointmentSagas(action: Actions): Generator<any, any, any> {
+    try {
+        const response = yield call(clientApi.updateAppointments, action.payload);
+        yield call(handleToast, response.data.message || 'Appointment updated successfully.', 'success');
+        yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
+        yield put({ type: UPDATE_APPOINTMENT_SUCCESS, payload: response.data });
+    } catch (error: any) {
+        yield call(handleToast, error.response?.data?.error || 'Appointment not updated. Please try again.', 'error');
+        yield* handleCallbacks(action.callbacks, 'onCallFailure', error.response?.data?.error);
+        yield put({ type: UPDATE_APPOINTMENT_FAILURE, payload: error.response?.data?.error });
+    }
+}
 
 
 export default function* clientSagas() {
@@ -115,4 +127,5 @@ export default function* clientSagas() {
     yield takeLatest(AVAILABLE_SLOTS_REQUEST, availableSlotsSaga);
     yield takeLatest(SCHEDULE_APPOINTMENT_REQUEST, scheduleAppointmentSagas);
     yield takeLatest(GET_APPOINTMENT_REQUEST, getAppointmentSagas);
+    yield takeLatest(UPDATE_APPOINTMENT_REQUEST, updateAppointmentSagas);
 }

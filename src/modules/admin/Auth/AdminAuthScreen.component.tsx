@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Button, Card } from 'react-bootstrap';
+import { Component } from 'react';
+import { Card } from 'react-bootstrap';
 import LoginComponent from './login/Login.component';
 import './AdminAuthScreen.css';
 import ForgotPassword from './forgot-password/ForgotPassword.component';

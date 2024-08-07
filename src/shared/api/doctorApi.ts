@@ -5,6 +5,12 @@ const getDoctor = async (doctorId: any) => {
   return response.data;
 };
 
+const getDoctorByClinicId = async (clinicId: any) => {
+  const response = await api.get(`/doctors/clinic/${clinicId}`);
+  return response.data;
+};
+
+
 const updateDoctor = async (doctorData: any) => {
     const response = await api.post(`/doctors`, doctorData, { useToken: true } as CustomAxiosRequestConfig);
     return response.data;
@@ -22,6 +28,6 @@ const deleteDoctor = async (doctorId: any) => {
   };
   
   
-const doctorApi = {getAllDoctors, getDoctor, deleteDoctor, updateDoctor } 
+const doctorApi = {getAllDoctors, getDoctor, deleteDoctor, updateDoctor, getDoctorByClinicId } 
 
 export default doctorApi

@@ -25,9 +25,7 @@ function* handleCallbacks(callbacks: CallbackFunctions | void, type: string, ...
 function* getProfileSaga(action: Actions): any {
     try {
         const response = yield call(profileApi.getProfile);
-        console.log(response);
-        
-        yield call(handleToast, response?.data?.message || response?.data?.data?.message || 'Data fetched successful.', 'success');
+        // yield call(handleToast, response?.data?.message || response?.data?.data?.message || 'Data fetched successful.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
         yield put(getProfileSuccess(response.data));
     } catch (error: any) {

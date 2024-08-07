@@ -142,8 +142,6 @@ class ClinicManagementComponent extends Component<ClinicManagementProps, ClinicM
 
   render() {
     const { showModal, showConfirmDelete, selectedClinic, filterText, currentPage, pageSize,errors } = this.state;
-    console.log(this.props);
-    
     const clinics = this.props.clinics;
 
     const filteredClinics = clinics ? clinics.filter((clinic: any) =>

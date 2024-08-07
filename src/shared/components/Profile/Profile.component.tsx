@@ -106,10 +106,10 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
 
   populateFormData = (profileData: any) => {
     const { user, details } = profileData;
-    console.log(user, details);
+    
 
     const { address, ...userData } = user;
-    console.log(profileData);
+    
 
     const formData = {
       firstName: userData.firstName || "",
@@ -147,9 +147,9 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         ? { healthHistory: details.healthHistory }
         : {}),
       ...(details?.staffNumber ? { staffNumber: details.staffNumber } : {}),
-      slotAvailability: this.convertFormDataToSlotStructure(
+      slotAvailability: (details?.availability && this.convertFormDataToSlotStructure(
         details?.availability
-      ) || {
+      )) || {
         Monday: [false, false, false, false],
         Tuesday: [false, false, false, false],
         Wednesday: [false, false, false, false],
@@ -160,7 +160,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
       },
     };
 
-    console.log(formData);
+    
     
     this.setState({
       doctorId: details._id,
@@ -169,7 +169,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   };
 
   convertFormDataToSlotStructure = (slotAvailability: any) => {
-    console.log(slotAvailability);
+    
     
     const dayToIndex: any = {
       Monday: 0,
@@ -309,7 +309,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   };
 
   generateSlotBodyRequest(slotAvailability: { [key: string]: boolean[] }) {
-    console.log(slotAvailability);
+    
     
     const date = new Date();
     const startDate = new Date();
@@ -319,8 +319,8 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
     for (const day in slotAvailability) {
       const slotsArr = slotAvailability[day];
       const shouldNotSkip = slotsArr.some((val) => val === true);
-      console.log(`${day}: ${shouldNotSkip} \t ${slotsArr}`);
-      console.log(slotsArr);
+      
+      
       
       let startTime = "";
       let endTime = "";
@@ -386,13 +386,13 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
       noOfMinPerSlot: noOfMinPerSlot,
       slots: slots,
     };
-    console.log(reqBody);
+    
 
     this.props.addSlots(reqBody);
   }
 
   handleSlotChange = (day: string, newValue: boolean[]) => {
-    console.log(day, newValue);
+    
     this.setState((prevState) => ({
       isSlotChanged: true,
       form: {
@@ -646,6 +646,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                   </Col>
                 </Row>
                 {this.props.role === "Doctor" && (
+                  <>
                   <fieldset>
                     <legend>Doctor Details</legend>
                     <Row>
@@ -717,6 +718,23 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                       </Col>
                     </Row>
                   </fieldset>
+                                    <Form.Group>
+                                    <legend>Availability</legend>                
+                                  {Object.keys(form.slotAvailability).map((day) => (
+                                    <div key={day}>
+                                      <Form.Group>{day}</Form.Group>
+                                      <SelectButtonGroup
+                                        day={day}
+                                        value={form.slotAvailability[day]}
+                                        onChange={(day, newValue) =>
+                                          this.handleSlotChange(day, newValue)
+                                        }
+                                        disabled={!this.state.isEditMode}
+                                      />
+                                    </div>
+                                  ))}
+                                  </Form.Group>
+                                  </>                  
                 )}
                 {this.props.role === "FrontDesk" && (
                   <fieldset>
@@ -778,22 +796,6 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     </Form.Group>
                   </fieldset>
                 )}
-                  <Form.Group>
-                  <legend>Availability</legend>                
-                {Object.keys(form.slotAvailability).map((day) => (
-                  <div key={day}>
-                    <Form.Group>{day}</Form.Group>
-                    <SelectButtonGroup
-                      day={day}
-                      value={form.slotAvailability[day]}
-                      onChange={(day, newValue) =>
-                        this.handleSlotChange(day, newValue)
-                      }
-                      disabled={!this.state.isEditMode}
-                    />
-                  </div>
-                ))}
-                </Form.Group>
                 <br/>
                 {isEditMode && (
                   <div className="edit-buttons">

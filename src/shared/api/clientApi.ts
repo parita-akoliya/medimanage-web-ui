@@ -29,7 +29,7 @@ const scheduleAppointment = async (data: string) => {
     return response.data;
 }
 
-const getAppointments = async (data: string) => {
+const getAppointments = async () => {
     const response = await api.get(`/appointment`, { useToken: true } as CustomAxiosRequestConfig)
     return response.data;
 }
@@ -39,7 +39,11 @@ const cancelAppointments = async (data: string) => {
     return response.data;
 }
 
+const updateAppointments = async (payload: any) => {
+    const response = await api.post(`/appointment/status`, payload, { useToken: true } as CustomAxiosRequestConfig)
+    return response.data;
+}
 
-const clientApi = { searchClinics, searchDoctors, addSlots, availableSlots, scheduleAppointment, getAppointments, cancelAppointments }
+const clientApi = { searchClinics, searchDoctors, addSlots, availableSlots, scheduleAppointment, getAppointments, cancelAppointments, updateAppointments }
 
 export default clientApi

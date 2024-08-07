@@ -11,6 +11,9 @@ import {
   UPDATE_DOCTOR_REQUEST,
   UPDATE_DOCTOR_SUCCESS,
   UPDATE_DOCTOR_FAILURE,
+  GET_DOCTOR_BY_CLINIC_ID_FAILURE,
+  GET_DOCTOR_BY_CLINIC_ID_REQUEST,
+  GET_DOCTOR_BY_CLINIC_ID_SUCCESS,
 } from '../types/doctorTypes';
 
 export const getAllDoctorsRequest = (onCallSuccess?: Function, onCallFail?: Function) => ({
@@ -91,6 +94,27 @@ export const updateDoctorSuccess = (doctor: any, onCallSuccess?: Function, onCal
 
 export const updateDoctorFailure = (error: any, onCallSuccess?: Function, onCallFail?: Function) => ({
   type: UPDATE_DOCTOR_FAILURE,
+  payload: error,
+  onCallSuccess,
+  onCallFail,
+});
+
+export const getDoctorByClinicIdRequest = (doctorId: string, onCallSuccess?: Function, onCallFail?: Function) => ({
+  type: GET_DOCTOR_BY_CLINIC_ID_REQUEST,
+  payload: doctorId,
+  onCallSuccess,
+  onCallFail,
+});
+
+export const getDoctorByClinicIdSuccess = (doctor: any, onCallSuccess?: Function, onCallFail?: Function) => ({
+  type: GET_DOCTOR_BY_CLINIC_ID_SUCCESS,
+  payload: doctor,
+  onCallSuccess,
+  onCallFail,
+});
+
+export const getDoctorByClinicIdFailure = (error: any, onCallSuccess?: Function, onCallFail?: Function) => ({
+  type: GET_DOCTOR_BY_CLINIC_ID_FAILURE,
   payload: error,
   onCallSuccess,
   onCallFail,
