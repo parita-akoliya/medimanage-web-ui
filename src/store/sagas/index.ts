@@ -5,6 +5,7 @@ import adminUserSagas from './userSagas';
 import clinicSagas from './clinicSagas';
 import clientSagas from './clientSagas';
 import doctorSagas from './doctorSagas';
+import lookupSagas from './lookupSagas';
 
 export default function* rootSaga() {
   yield all([
@@ -14,5 +15,6 @@ export default function* rootSaga() {
     clinicSagas(),
     clientSagas(),
     doctorSagas(),
+    lookupSagas()
   ]);
 }

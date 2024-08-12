@@ -72,7 +72,7 @@ class ResetPassword extends Component<ResetPasswordProps, ResetPasswordState> {
 
     if (isValid) {
       this.props.resetPassword(this.props.params.id, password);
-      this.props.navigate('/client/auth');
+      this.props.navigate('/auth');
     } else {
       this.setState({ errors });
     }

@@ -18,7 +18,7 @@ type DoctorClinicProfileProps = {
   getDoctor: (doctorId: string, onCallSuccess?: Function | void) => void;
   availableSlots: (doctorId: string) => void;
   filterSlots: (date: string | undefined) => void;
-  scheduleAppointment: (body: any) => void;
+  scheduleAppointment: (body: any, onCallSuccess?: Function) => void;
   isAuthenticated: boolean;
 };
 
@@ -57,7 +57,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
   };
 
   componentDidMount() {
-    // Fetch doctor details on component mount
+    
     this.props.getDoctor(this.props.params.id);
     this.props.availableSlots(this.props.params.id);
     this.props.filterSlots(new Date().toISOString());
@@ -95,7 +95,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
     this.setState({ showModal: false });
   };
 
-  handleBooking = (type: 'in-person' | 'online') => {
+  handleBooking = (type: 'In-Person' | 'Online') => {
     if (!this.props.isAuthenticated) {
       this.setState({ showModal: true });
       return;
@@ -112,8 +112,11 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
         slotId: this.state.timeSlot,
         clinicId: doctor.clinic._id,
         reason: this.state.symptoms,
+        type: type
       };
-      this.props.scheduleAppointment(body);
+      this.props.scheduleAppointment(body, () => {
+        this.handleGoBack()
+      });
     } else {
       console.error('Form validation failed.');
     }
@@ -125,7 +128,7 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
 
   handleLogin = () => {
     this.setState({ showModal: false });
-    this.props.navigate('/client/auth');
+    this.props.navigate('/auth');
   };
 
   render() {
@@ -210,16 +213,15 @@ class DoctorClinicProfile extends Component<DoctorClinicProfileProps, DoctorClin
               </Form.Group>
               <Row>
                 <Col>
-                  <Button variant="primary" className="w-100" onClick={() => this.handleBooking('in-person')}>
+                  <Button variant="primary" className="w-100" onClick={() => this.handleBooking('In-Person')}>
                     Book In-Person Appointment
                   </Button>
                 </Col>
-                {/* Uncomment the following lines if you want to allow online appointments */}
-                {/* <Col>
-                  <Button variant="primary" className="w-100" onClick={() => this.handleBooking('online')}>
+                <Col>
+                  <Button variant="primary" className="w-100" onClick={() => this.handleBooking('Online')}>
                     Book Online Appointment
                   </Button>
-                </Col> */}
+                </Col>
                 <Col>
                   <Button variant="outline-primary" className="w-100" onClick={this.handleGoBack}>
                     Go Back
@@ -260,7 +262,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   getDoctor: (doctorId: string, onCallSuccess?: Function) => dispatch(getDoctorRequest(doctorId, onCallSuccess)),
   availableSlots: (doctorId: string) => dispatch(availableSlotsRequest(doctorId)),
   filterSlots: (date: string | undefined) => dispatch(filterSlotsRequest(date)),
-  scheduleAppointment: (body: any) => dispatch(scheduleAppointmentRequest(body))
+  scheduleAppointment: (body: any, onCallSuccess?: Function) => dispatch(scheduleAppointmentRequest(body, onCallSuccess))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(DoctorClinicProfile));

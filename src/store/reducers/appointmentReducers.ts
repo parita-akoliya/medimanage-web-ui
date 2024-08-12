@@ -1,4 +1,4 @@
-import { GET_APPOINTMENT_SUCCESS, GET_APPOINTMENT_FAILURE, UPDATE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE } from '../types/slotTypes';
+import { GET_APPOINTMENTS_SUCCESS, GET_APPOINTMENTS_FAILURE, UPDATE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE } from '../types/slotTypes';
 
 export interface AppointmentState {
     appointments?: any[] | null;
@@ -13,12 +13,12 @@ const initialState: AppointmentState = {
 
 const appointments = (state = initialState, action: any): AppointmentState => {
     switch (action.type) {
-        case GET_APPOINTMENT_SUCCESS:
+        case GET_APPOINTMENTS_SUCCESS:
             return {
                 ...state,
                 appointments: action.payload,
             };
-        case GET_APPOINTMENT_FAILURE:
+        case GET_APPOINTMENTS_FAILURE:
             return {
                 ...state,
                 error: action.error,

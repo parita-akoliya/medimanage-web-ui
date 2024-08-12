@@ -51,7 +51,7 @@ class OtpVerification extends Component<OtpVerificationProps, OtpVerificationSta
         link = `/admin/dashboard`;
         break;
       case RoleTypes.PATIENT:
-        link = `/client/profile`;
+        link = `/profile`;
         break;
       case RoleTypes.DOCTOR:
         link = `/admin/dashboard`;

@@ -41,7 +41,7 @@ function* handleCallbacks(callbacks: CallbackFunctions | void, type: string, ...
 function* getAllDoctorsSaga(action: Actions): any {
   try {
     const response = yield call(doctorApi.getAllDoctors);
-    // yield call(handleToast, 'Doctors retrieved successfully.', 'success');
+    
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
     yield put(getAllDoctorsSuccess(response.data));
   } catch (error: any) {
@@ -54,7 +54,7 @@ function* getAllDoctorsSaga(action: Actions): any {
 function* getDoctorSaga(action: Actions): any {
   try {
     const response = yield call(doctorApi.getDoctor, action.payload);
-    // yield call(handleToast, 'Doctor retrieved successfully.', 'success');
+    
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
     yield put(getDoctorSuccess(response.data));
   } catch (error: any) {
@@ -93,7 +93,7 @@ function* updateDoctorSaga(action: Actions): any {
 function* getDoctorByClinicIdSaga(action: Actions): any {
   try {
     const response = yield call(doctorApi.getDoctorByClinicId, action.payload);
-    // yield call(handleToast, 'Doctor retrieved successfully.', 'success');
+    
     yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
     yield put(getDoctorByClinicIdSuccess(response.data));
   } catch (error: any) {

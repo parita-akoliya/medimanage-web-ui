@@ -43,8 +43,6 @@ const initialState: DoctorState = {
 };
 
 const doctors = (state = initialState, action: any): DoctorState => {
-    console.log(action);
-    
     switch (action.type) {
         case AVAILABLE_SLOTS_SUCCESS:
             let filteredSlots:any[]= []

@@ -7,7 +7,7 @@ import { registerPatient } from '../../../../store/actions/authActions';
 
 const mockStore = configureStore([]);
 
-// Mocking the action creator
+
 jest.mock('../../../store/actions/authActions', () => ({
     registerPatient: jest.fn(),
 }));

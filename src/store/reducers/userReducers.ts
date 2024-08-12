@@ -3,8 +3,8 @@ import {
     CHANGE_ROLE_FAILURE,
     UPDATE_EMAIL_SUCCESS,
     UPDATE_EMAIL_FAILURE,
-    RESET_PASSWORD_SUCCESS,
-    RESET_PASSWORD_FAILURE,
+    ADMIN_RESET_PASSWORD_SUCCESS,
+    ADMIN_RESET_PASSWORD_FAILURE,
     GET_USER_SUCCESS,
     GET_USER_FAILURE,
     DELETE_USER_SUCCESS,
@@ -49,12 +49,12 @@ const user = (state = initialState, action: any): UserState => {
                 ...state,
                 error: action.error,
             };
-        case RESET_PASSWORD_SUCCESS:
+        case ADMIN_RESET_PASSWORD_SUCCESS:
             return {
                 ...state,
                 role: null,
             };
-        case RESET_PASSWORD_FAILURE:
+        case ADMIN_RESET_PASSWORD_FAILURE:
             return {
                 ...state,
                 error: action.error,

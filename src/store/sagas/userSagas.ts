@@ -2,16 +2,17 @@ import { takeLatest, put, call } from 'redux-saga/effects';
 import { Actions, CallbackFunctions } from '../../shared/models/Actions';
 import { toast } from 'react-toastify';
 import {
+    ADMIN_RESET_PASSWORD_REQUEST,
     CHANGE_ROLE_REQUEST,
+    DASHBOARD_REQUEST,
     DELETE_USER_REQUEST,
     GET_ALL_USERS_REQUEST,
     GET_USER_REQUEST,
-    RESET_PASSWORD_REQUEST,
     UPDATE_EMAIL_REQUEST,
     UPDATE_USER_REQUEST,
 } from '../types/userTypes';
 import userApi from '../../shared/api/userApi';
-import { changeRoleFailure, changeRoleSuccess, deleteUserFailure, deleteUserRequest, getAllUsersFailure, getAllUsersSuccess, getUserFailure, getUserSuccess, resetPasswordFailure, resetPasswordSuccess, updateEmailFailure, updateEmailSuccess, updateUserFailure, updateUserSuccess } from '../actions/userActions';
+import { adminResetPasswordFailure, adminResetPasswordSuccess, changeRoleFailure, changeRoleSuccess, dashboardFailure, dashboardSuccess, deleteUserFailure, deleteUserRequest, getAllUsersFailure, getAllUsersSuccess, getUserFailure, getUserSuccess, updateEmailFailure, updateEmailSuccess, updateUserFailure, updateUserSuccess } from '../actions/userActions';
 
 function handleToast(message: string, type: string) {
     if (type === 'success') {
@@ -60,11 +61,11 @@ function* resetPasswordSaga(action: Actions): any {
         const response = yield call(userApi.resetPassword, {email:action.payload});
         yield call(handleToast, response.data.message || 'Password reset successfully.', 'success');
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
-        yield put(resetPasswordSuccess(response.data));
+        yield put(adminResetPasswordSuccess(response.data));
     } catch (error: any) {
         yield call(handleToast, error.response.data.error || 'Failed to reset password. Please try again.', 'error');
         yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');
-        yield put(resetPasswordFailure(error.response.data.error));
+        yield put(adminResetPasswordFailure(error.response.data.error));
     }
 }
 
@@ -97,7 +98,7 @@ function* deleteUserSaga(action: Actions): any {
 function* getAllUsersSaga(action: Actions): any {
     try {
         const response = yield call(userApi.getAllUsers);
-        // yield call(handleToast, response.data.message || 'Users fetched successfully.', 'success');
+        
         yield* handleCallbacks(action.callbacks, 'onCallSuccess', 'success');
         yield put(getAllUsersSuccess(response.data));
     } catch (error: any) {
@@ -120,13 +121,24 @@ function* updateUsersSaga(action: Actions): any {
   }
 }
 
-
+function* fetchDashboardSaga(action: Actions): any {
+    try {
+        const response = yield call(userApi.fetchDashboard);
+        yield* handleCallbacks(action.callbacks, 'onCallSuccess', response.data);
+        yield put(dashboardSuccess(response.data));
+    } catch (error: any) {
+        yield* handleCallbacks(action.callbacks, 'onCallFailure', 'failure');
+        yield put(dashboardFailure(error.response.data.error));
+    }
+  }
+  
 export default function* adminUserSagas() {
     yield takeLatest(CHANGE_ROLE_REQUEST, changeRoleSaga);
     yield takeLatest(UPDATE_EMAIL_REQUEST, updateEmailSaga);
-    yield takeLatest(RESET_PASSWORD_REQUEST, resetPasswordSaga);
+    yield takeLatest(ADMIN_RESET_PASSWORD_REQUEST, resetPasswordSaga);
     yield takeLatest(GET_USER_REQUEST, getUserSaga);
     yield takeLatest(DELETE_USER_REQUEST, deleteUserSaga);
     yield takeLatest(GET_ALL_USERS_REQUEST, getAllUsersSaga);
     yield takeLatest(UPDATE_USER_REQUEST, updateUsersSaga);
+    yield takeLatest(DASHBOARD_REQUEST, fetchDashboardSaga);
 }

@@ -6,9 +6,9 @@ export const UPDATE_EMAIL_REQUEST = 'UPDATE_EMAIL_REQUEST';
 export const UPDATE_EMAIL_SUCCESS = 'UPDATE_EMAIL_SUCCESS';
 export const UPDATE_EMAIL_FAILURE = 'UPDATE_EMAIL_FAILURE';
 
-export const RESET_PASSWORD_REQUEST = 'RESET_PASSWORD_REQUEST';
-export const RESET_PASSWORD_SUCCESS = 'RESET_PASSWORD_SUCCESS';
-export const RESET_PASSWORD_FAILURE = 'RESET_PASSWORD_FAILURE';
+export const ADMIN_RESET_PASSWORD_REQUEST = 'ADMIN_RESET_PASSWORD_REQUEST';
+export const ADMIN_RESET_PASSWORD_SUCCESS = 'ADMIN_RESET_PASSWORD_SUCCESS';
+export const ADMIN_RESET_PASSWORD_FAILURE = 'ADMIN_RESET_PASSWORD_FAILURE';
 
 export const GET_USER_REQUEST = 'GET_USER_REQUEST';
 export const GET_USER_SUCCESS = 'GET_USER_SUCCESS';
@@ -25,6 +25,10 @@ export const GET_ALL_USERS_FAILURE = 'GET_ALL_USERS_FAILURE';
 export const UPDATE_USER_REQUEST = 'UPDATE_USER_REQUEST';
 export const UPDATE_USER_SUCCESS = 'UPDATE_USER_SUCCESS';
 export const UPDATE_USER_FAILURE = 'UPDATE_USER_FAILURE';
+
+export const DASHBOARD_REQUEST = 'DASHBOARD_REQUEST';
+export const DASHBOARD_SUCCESS = 'DASHBOARD_SUCCESS';
+export const DASHBOARD_FAILURE = 'DASHBOARD_FAILURE';
 
 
 interface ChangeRoleRequest {
@@ -58,17 +62,17 @@ interface UpdateEmailFailure {
 }
 
 interface ResetPasswordRequest {
-    type: typeof RESET_PASSWORD_REQUEST;
+    type: typeof ADMIN_RESET_PASSWORD_REQUEST;
     payload: any;
 }
 
 interface ResetPasswordSuccess {
-    type: typeof RESET_PASSWORD_SUCCESS;
+    type: typeof ADMIN_RESET_PASSWORD_SUCCESS;
     payload: any;
 }
 
 interface ResetPasswordFailure {
-    type: typeof RESET_PASSWORD_FAILURE;
+    type: typeof ADMIN_RESET_PASSWORD_FAILURE;
     error: string;
 }
 
@@ -125,6 +129,21 @@ interface UpdateUserSuccess {
     payload: any;
 }
 
+interface DashboardRequest {
+    type: typeof DASHBOARD_REQUEST;
+}
+
+interface DashboardSuccess {
+    type: typeof DASHBOARD_SUCCESS;
+    payload: any;
+}
+
+interface DashboardFailure {
+    type: typeof DASHBOARD_FAILURE;
+    error: string;
+}
+
+
 interface UpdateUserFailure {
     type: typeof UPDATE_USER_FAILURE;
     error: string;
@@ -151,4 +170,7 @@ export type UserActionTypes =
     | GetAllUsersFailure
     | UpdateUserRequest
     | UpdateUserSuccess
-    | UpdateUserFailure;
+    | UpdateUserFailure
+    | DashboardRequest
+    | DashboardSuccess
+    | DashboardFailure;

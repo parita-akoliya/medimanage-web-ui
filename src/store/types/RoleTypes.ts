@@ -14,13 +14,14 @@ export const RoleTypes: RoleConstants = {
 }
 
 export const PathToRoleMappings: RoleConstantsMap = {
-    'client': ['Patient'],
+    'profile': ['Patient'],
+    'history': ['Patient'],
     'admin': ['Admin', 'Doctor', 'FrontDesk']
 }
 
 export const AuthRoleMappings: RoleConstants = {
-    'Patient': '/client/auth',
-    'FrontDesk': '/admin-auth',
-    'Doctor': '/admin-auth',
-    'Admin': '/admin-auth'
+    'Patient': '/auth',
+    'FrontDesk': '/admin/auth',
+    'Doctor': '/admin/auth',
+    'Admin': '/admin/auth'
 }
