@@ -35,8 +35,12 @@ const updateUser = async (userId: string, userData: any) => {
     return response.data;
 };
 
+const fetchDashboard = async () => {
+    const response = await api.get(`/admin/dashboard`, { useToken: true } as CustomAxiosRequestConfig);
+    return response.data;
+};
 
-const userApi = { changeUserRole, getAllUsers, deleteUser, getUser, resetPassword, updateEmail, updateUser }
+const userApi = { changeUserRole, getAllUsers, deleteUser, getUser, resetPassword, updateEmail, updateUser, fetchDashboard }
 
 
 export default userApi

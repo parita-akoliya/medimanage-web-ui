@@ -71,3 +71,70 @@
 .mb-2 {
   margin-bottom: 0.5rem !important;
 }
+
+.custom-card {
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.icon {
+  color: #007bff;
+}
+
+.table-custom-card {
+  margin: 1rem 0;
+}
+
+.table-header {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.appointment-table {
+  margin-top: 1rem;
+}
+.custom-card {
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.icon {
+  color: #007bff;
+}
+
+.chart-card {
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.table-card {
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.table-header {
+  background-color: #f8f9fa;
+  font-weight: bold;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+@media (max-width: 767px) {
+  .table-card {
+    margin: 0.5rem 0;
+  }
+  
+  .chart-card {
+    margin: 0.5rem 0;
+  }
+}

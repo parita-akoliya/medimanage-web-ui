@@ -3,7 +3,8 @@ $primary-hover: darken($primary, 10%);
 $primary-focus: lighten($primary, 20%);
 @import '~bootstrap/scss/bootstrap.scss';
 @import 'react-bootstrap-sidebar-menu/dist/sidebar-menu.scss';
-
+@import "~slick-carousel/slick/slick.css";
+@import "~slick-carousel/slick/slick-theme.css";
 
 .btn-primary {
     color: white;

@@ -1,107 +1,134 @@
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 import "./SideBar.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faSignOutAlt, faTimes, faUserCircle } from "@fortawesome/free-solid-svg-icons";
-import AdminSideBarNav from "./SideBarNav"; // Assuming the path to AdminSideBarNav is correct
-import logo from '../../../images/MEDLogo.png'
+import AdminSideBarNav from "./SideBarNav";
+import logo from '../../../images/MEDLogo.png';
+import minimalLogo from '../../../images/favicon.png';
 import { logoutRequest } from "../../../store/actions/authActions";
 import { connect } from "react-redux";
+import { Tooltip, OverlayTrigger } from 'react-bootstrap';
 
 interface SidebarProps {
   logoutUser: () => void;
   role: string;
 }
 
-interface SidebarState {
-  isNotActive: boolean;
-  isDropdownActive: boolean;
-}
+const Sidebar: React.FC<SidebarProps> = ({ logoutUser, role }) => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
 
-class Sidebar extends Component<SidebarProps, SidebarState> {
-  constructor(props: SidebarProps) {
-    super(props);
-    this.state = {
-      isNotActive: true,
-      isDropdownActive: false,
-    };
-  }
-
-  toggleSidebar = () => {
-    this.setState((prevState) => ({
-      isNotActive: !prevState.isNotActive,
-    }));
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prevState => !prevState);
   };
 
-  toggleDropdown = () => {
-    this.setState((prevState) => ({
-      isDropdownActive: !prevState.isDropdownActive,
-    }));
+  const getActiveClass = (path: string) => {
+    return location.pathname === path ? 'active-link' : '';
   };
 
-  render() {
-    const { isNotActive } = this.state;
-    const barsIcon = <FontAwesomeIcon icon={faBars} className="icon-color"/>;
-    const crossIcon = <FontAwesomeIcon icon={faTimes} className="icon-color"/>;
-    const signOutIcon = <FontAwesomeIcon icon={faSignOutAlt} className="icon-color"/>;
-    const role = this.props.role;
-    return (
-      <div>
-        <div className="wrapper">
-          <nav id="sidebar" className={isNotActive ? "active" : ""}>
-            <div className="sidebar-header">
-              <img
-                src={logo}
-                className="rounded-circle usr-image"
-                height={isNotActive ? "20" : "70"}
-                width={isNotActive ? "20" : "70"}
-                alt="User"
-              ></img>
-              <h3>MediManage</h3>
-            </div>
-
-            <ul className="list-unstyled components">
-              {AdminSideBarNav.map((item, index) => (
-                item.roles.includes(role) && (
-                  <li key={index} className="list-item">
-                    <FontAwesomeIcon icon={item.icon} className="icon-color" />
-                    <Link to={item.link}>{item.text}</Link>
-                  </li>
-                )
-              ))}
-            </ul>
-
-            <ul className="list-unstyled bottom-links">
-              <li className="list-item">
-                {<FontAwesomeIcon icon={faUserCircle} className="icon-color"/>}
-                <Link to="/admin/profile">Profile</Link>
-              </li>
-              <li className="list-item">
-                {signOutIcon}
-                <Link to="#" onClick={() => this.props.logoutUser()}>Logout</Link>
-              </li>
-            </ul>
-
-            <button
-              type="button"
-              id="sidebarCollapse"
-              onClick={this.toggleSidebar}
-              className="btn btn-custom"
-            >
-              <span className={isNotActive ? "" : "hidden"}>{barsIcon}</span>
-              <span className={isNotActive ? "hidden" : ""}>{crossIcon}</span>
-            </button>
-          </nav>
+  return (
+    <div className={`wrapper ${isSidebarOpen ? "expanded" : "collapsed"}`}>
+      <nav id="sidebar" className={isSidebarOpen ? "sidebar-expanded" : "sidebar-collapsed"}>
+        <div className={`sidebar-header ${isSidebarOpen ? 'header-expanded' : 'header-collapsed'}`}>
+          <div className="logo-container">
+            {isSidebarOpen ?
+              <img src={logo} className="logo expanded" alt="Logo" /> :
+              <img src={minimalLogo} className="logo collapsed" alt="Logo" />
+            }
+          </div>
+          <OverlayTrigger
+            placement="right"
+            overlay={<Tooltip id="tooltip-toggle">{`${isSidebarOpen ? 'Close' : 'Open'}`}</Tooltip>}
+          >
+            <NavLink to="#" onClick={toggleSidebar} className="icon-link sidebar-toggle">
+              {isSidebarOpen ? <FontAwesomeIcon icon={faTimes} /> : <FontAwesomeIcon icon={faBars} />}
+            </NavLink>
+          </OverlayTrigger>
         </div>
-      </div>
-    );
-  }
-}
+
+        <ul className="list-unstyled components">
+          {AdminSideBarNav.map((item, index) => (
+            item.roles.includes(role) && (
+              <li key={index} className="list-item">
+                <OverlayTrigger
+                  placement="right"
+                  overlay={<Tooltip id={`tooltip-${item.text}`}>{item.text}</Tooltip>}
+                >
+                  <NavLink 
+                    to={item.link} 
+                    className={`icon-link ${getActiveClass(item.link)}`}
+                  >
+                    <FontAwesomeIcon icon={item.icon} />
+                  </NavLink>
+                </OverlayTrigger>
+                {isSidebarOpen && 
+                  <NavLink 
+                    className={`icon-link ${getActiveClass(item.link)}`}
+                    to={item.link}
+                  >
+                    &nbsp;&nbsp;{item.text}
+                  </NavLink>
+                }
+              </li>
+            )
+          ))}
+        </ul>
+
+        <ul className="list-unstyled bottom-links">
+          <li className="list-item">
+            <OverlayTrigger
+              placement="right"
+              overlay={<Tooltip id="tooltip-profile">Profile</Tooltip>}
+            >
+              <NavLink 
+                to="/admin/profile" 
+                className={`icon-link ${getActiveClass('/admin/profile')}`}
+              >
+                <FontAwesomeIcon icon={faUserCircle} />
+              </NavLink>
+            </OverlayTrigger>
+            {isSidebarOpen && 
+              <NavLink 
+                className={`icon-link ${getActiveClass('/admin/profile')}`}
+                to="/admin/profile"
+              >
+                &nbsp;&nbsp;Profile
+              </NavLink>
+            }
+          </li>
+          <li className="list-item">
+            <OverlayTrigger
+              placement="right"
+              overlay={<Tooltip id="tooltip-logout">Logout</Tooltip>}
+            >
+              <NavLink 
+                to="#" 
+                onClick={() => logoutUser()} 
+                className={`icon-link ${getActiveClass('#')}`}
+              >
+                <FontAwesomeIcon icon={faSignOutAlt} />
+              </NavLink>
+            </OverlayTrigger>
+            {isSidebarOpen && 
+              <NavLink 
+                className={`icon-link ${getActiveClass('#')}`}
+                to="#" 
+                onClick={() => logoutUser()} 
+              >
+                &nbsp;&nbsp;Logout
+              </NavLink>
+            }
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+};
 
 const mapStateToProps = (state: any) => ({
   role: state?.auth?.role,
 });
-
 
 const mapDispatchToProps = (dispatch: any) => ({
   logoutUser: () => dispatch(logoutRequest()),

@@ -1,0 +1,40 @@
+.submenu {
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.25rem;
+}
+
+.submenu .submenu-icon {
+    color: #007bff; /* Primary color */
+}
+
+.submenu .submenu-title {
+    font-weight: 600;
+}
+
+.submenu .submenu-toggle {
+    transition: transform 0.3s;
+    color: #6c757d;
+}
+
+.submenu .submenu-toggle.rotate {
+    transform: rotate(180deg);
+}
+
+.submenu .submenu-content {
+    padding: 0.5rem 1rem;
+}
+
+.submenu .nav-link {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.submenu .nav-link:hover {
+    background-color: #f8f9fa;
+    color: #0056b3;
+}
+
+.submenu .nav-link.active {
+    color: #0056b3;
+    font-weight: 500;
+}

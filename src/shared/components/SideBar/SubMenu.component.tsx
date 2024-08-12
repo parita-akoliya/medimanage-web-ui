@@ -3,20 +3,20 @@ import { Accordion, Nav } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { IconDefinition, faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import classNames from "classnames";
+import './SubMenu.css'; 
 
 interface SubMenuProps {
     icon: IconDefinition;
     title: string;
-    items: any[];
+    items: string[]; 
 }
 
 interface SubMenuState {
     collapsed: boolean;
 }
 
-
 class SubMenu extends Component<SubMenuProps, SubMenuState> {
-    constructor(props: any) {
+    constructor(props: SubMenuProps) {
         super(props);
 
         this.state = {
@@ -35,30 +35,34 @@ class SubMenu extends Component<SubMenuProps, SubMenuState> {
         const { collapsed } = this.state;
 
         return (
-            <Nav.Item className={classNames({ open: !collapsed })}>
+            <Nav.Item className={classNames('submenu', { open: !collapsed })}>
                 <Accordion>
                     <Accordion.Header
                         as={Nav.Link}
-                        variant="link"
                         eventKey="0"
                         onClick={this.toggleNavbar}
+                        className="d-flex align-items-center justify-content-between"
+                        aria-expanded={!collapsed}
                     >
-                        <FontAwesomeIcon icon={icon} className="mr-2" />
-                        {title}
+                        <div className="d-flex align-items-center">
+                            <FontAwesomeIcon icon={icon} className="mr-2 submenu-icon" />
+                            <span className="submenu-title">{title}</span>
+                        </div>
                         <FontAwesomeIcon
                             icon={collapsed ? faCaretDown : faCaretUp}
-                            className="float-right"
+                            className="submenu-toggle"
                         />
                     </Accordion.Header>
 
                     <Accordion.Collapse eventKey="0">
-                        <nav className="nav flex-column">
-                            {items.map((item) => (
+                        <nav className="nav flex-column submenu-content">
+                            {items.map((item, index) => (
                                 <a
-                                    className={`nav-link nav-item pl-5 ${item === "Active" ? "active" : ""
-                                        } `}
+                                    className={classNames('nav-link', 'nav-item', {
+                                        'active': item === "Active"
+                                    })}
                                     href="/"
-                                    key={item}
+                                    key={index}
                                 >
                                     {item}
                                 </a>

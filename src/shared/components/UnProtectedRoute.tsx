@@ -17,7 +17,7 @@ const UnProtectedRouteComponent: React.FC<UnProtectedRouteRouteProps> = ({ compo
   let link = ''
   switch (role) {
     case 'Patient':
-      link = '/client/home'
+      link = '/home'
       break;
     case 'Doctor':
     case 'FrontDesk':
@@ -25,7 +25,7 @@ const UnProtectedRouteComponent: React.FC<UnProtectedRouteRouteProps> = ({ compo
       link = '/admin/dashboard'
       break;
     default:
-      link = '/client/home'
+      link = '/home'
       break;
   }
   return (!isToken && !isRole) ? (
