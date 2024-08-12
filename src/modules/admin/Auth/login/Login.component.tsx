@@ -65,12 +65,7 @@ class Login extends Component<LoginProps, LoginState> {
         }
 
         if (isValid) {
-            onSubmit(email, password, (success: string) => {
-                console.log(success);                
-            }, (error: any) => {
-                console.log(error);
-                
-            });
+            onSubmit(email, password);
         } else {
             this.setState({ errors });
         }

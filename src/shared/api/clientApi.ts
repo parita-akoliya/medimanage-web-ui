@@ -44,6 +44,17 @@ const updateAppointments = async (payload: any) => {
     return response.data;
 }
 
-const clientApi = { searchClinics, searchDoctors, addSlots, availableSlots, scheduleAppointment, getAppointments, cancelAppointments, updateAppointments }
+const attendAppointment = async (data: any) => {
+    const response = await api.post(`/appointment/attend`, data, { useToken: true } as CustomAxiosRequestConfig)
+    return response.data;
+}
+
+const getAppointment = async (appointmentId: string) => {
+    const response = await api.get(`/appointment/${appointmentId}`, { useToken: true } as CustomAxiosRequestConfig)
+    return response.data;
+}
+
+
+const clientApi = { searchClinics, searchDoctors, addSlots, availableSlots, scheduleAppointment, getAppointments, cancelAppointments, updateAppointments, getAppointment, attendAppointment }
 
 export default clientApi

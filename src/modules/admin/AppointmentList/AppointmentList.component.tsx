@@ -1,11 +1,10 @@
 import React, { Component } from 'react';
 import { Container, Form, Table, Button, Row, Col, Modal, Tooltip, OverlayTrigger } from 'react-bootstrap';
-import { getAppointmentRequest, updateAppointmentRequest } from '../../../store/actions/slotActions';
+import { getAppointmentRequest, getAppointmentsRequest, updateAppointmentRequest } from '../../../store/actions/slotActions';
 import { NavigateFunction, useNavigate, useParams } from 'react-router';
 import { connect } from 'react-redux';
 import { XCircle, Eye, CalendarCheck } from 'react-bootstrap-icons';
 
-// Define the types
 interface Patient {
   _id: string;
   user: {
@@ -15,12 +14,14 @@ interface Patient {
 }
 
 interface Appointment {
+  createdDate: any;
   _id: string;
   patient_id: Patient | null;
   reason: string;
   status?: string;
   slot_id: {
-    start_time: string;
+    date: string | undefined | number | any;
+    start_time: string | undefined | any;
     end_time: string;
   } | null;
   clinic_id: {
@@ -90,10 +91,10 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
   };
 
   handleReject = (appointmentId: string) => {
-    this.props.updateAppointments(appointmentId, 'Rejected', ()=> {
+    this.props.updateAppointments(appointmentId, 'Rejected', () => {
       this.props.getAppointments()
     })
-    if(this.state.showModal){
+    if (this.state.showModal) {
       this.handleCloseModal();
     }
   };
@@ -105,9 +106,7 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
   render() {
     const { searchTerm, filterOption, showModal, selectedAppointment } = this.state;
     const { appointments } = this.props;
-    console.log(appointments);
-    
-    const filteredAppointments = appointments.filter(appointment => {
+    const filteredAppointments = appointments?.filter(appointment => {
       const patientInfo = appointment.patient_id
         ? `${appointment.patient_id.user.firstName} ${appointment.patient_id.user.lastName}`
         : '';
@@ -118,7 +117,6 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
       }
       return isMatch;
     });
-
     return (
       <Container className="mt-4">
         <h2>Appointment List</h2>
@@ -143,7 +141,8 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>First Name</th>
+            <th>Appointment Date</th>
+            <th>First Name</th>
               <th>Last Name</th>
               <th>Reason</th>
               <th>Slot Start Time</th>
@@ -156,6 +155,7 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
           <tbody>
             {filteredAppointments.map(appointment => (
               <tr key={appointment._id}>
+                <td>{new Date(appointment?.slot_id?.start_time).toLocaleDateString() || 'N/A'}</td>
                 <td>{appointment.patient_id?.user.firstName || 'N/A'}</td>
                 <td>{appointment.patient_id?.user.lastName || 'N/A'}</td>
                 <td>{appointment.reason}</td>
@@ -164,16 +164,16 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
                 <td>{appointment.clinic_id.name}</td>
                 <td>{appointment.status}</td>
                 <td>
-                {(appointment.status !== "Rejected" && appointment.status !== "Not Available") && 
-                  <OverlayTrigger
-                  placement="top"
-                  overlay={this.renderTooltip('Reject')}
-                >
-                  <Button variant="link" onClick={() => this.handleReject(appointment._id)}>
-                    <XCircle />
-                  </Button>
-                </OverlayTrigger>
-            }
+                  {(appointment.status !== "Rejected" && appointment.status !== "Not Available" && appointment.status === 'Scheduled') &&
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={this.renderTooltip('Reject')}
+                    >
+                      <Button variant="link" onClick={() => this.handleReject(appointment._id)}>
+                        <XCircle />
+                      </Button>
+                    </OverlayTrigger>
+                  }
                   <OverlayTrigger
                     placement="top"
                     overlay={this.renderTooltip('View')}
@@ -182,14 +182,17 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
                       <Eye />
                     </Button>
                   </OverlayTrigger>
-                  <OverlayTrigger
-                    placement="top"
-                    overlay={this.renderTooltip('Attend')}
-                  >
-                    <Button variant="link" onClick={() => this.handleAttend(appointment._id)}>
-                      <CalendarCheck />
-                    </Button>
-                  </OverlayTrigger>
+                  {
+                    (appointment.status === 'Scheduled' || appointment.status === 'Not Attended') &&
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={this.renderTooltip('Attend')}
+                    >
+                      <Button variant="link" onClick={() => this.handleAttend(appointment._id)}>
+                        <CalendarCheck />
+                      </Button>
+                    </OverlayTrigger>
+                  }
                 </td>
               </tr>
             ))}
@@ -210,13 +213,15 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
               <p><strong>Clinic Name:</strong> {selectedAppointment.clinic_id.name}</p>
             </Modal.Body>
             <Modal.Footer>
-              <Button variant="secondary" onClick={this.handleCloseModal}>
-                Close
-              </Button>
-              {(selectedAppointment.status !== "Rejected" && selectedAppointment.status !== "Not Available") && 
-                  <Button variant="danger" onClick={()=>this.handleReject(selectedAppointment._id)}>
-                  Reject
+              {(selectedAppointment.status !== "Rejected" && selectedAppointment.status !== "Not Available" && selectedAppointment.status === "Scheduled") &&
+                <>
+                  <Button variant="secondary" onClick={this.handleCloseModal}>
+                    Close
                   </Button>
+                  <Button variant="danger" onClick={() => this.handleReject(selectedAppointment._id)}>
+                    Reject
+                  </Button>
+                </>
               }
             </Modal.Footer>
           </Modal>
@@ -227,11 +232,11 @@ class AppointmentList extends Component<AppointmentListProps, AppointmentListSta
 }
 
 const mapStateToProps = (state: any) => ({
-  appointments: state.appointments.appointments,
+  appointments: state?.appointments?.appointments,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
-  getAppointments: (onCallSuccess?: Function) => dispatch(getAppointmentRequest(onCallSuccess)),
+  getAppointments: (onCallSuccess?: Function) => dispatch(getAppointmentsRequest(onCallSuccess)),
   updateAppointments: (appointmentId: string, status: string, onCallSuccess?: Function) => dispatch(updateAppointmentRequest(appointmentId, status, onCallSuccess))
 });
 

@@ -1,4 +1,4 @@
-import api, { CustomAxiosRequestConfig } from './api'; // Import your Axios instance and any custom Axios configurations
+import api, { CustomAxiosRequestConfig } from './api'; 
 import { AxiosResponse } from 'axios';
 
 export const registerClinic = async (any: any): Promise<AxiosResponse<any>> => {

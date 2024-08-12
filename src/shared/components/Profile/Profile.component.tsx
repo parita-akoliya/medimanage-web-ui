@@ -5,11 +5,15 @@ import { getProfileRequest, updateProfileRequest } from '../../../store/actions/
 import { connect } from 'react-redux';
 import SelectButtonGroup from '../SelectButton/SelectButtonGroup.component';
 import { addSlotsRequest } from '../../../store/actions/slotActions';
+import { getLookupsRequest } from '../../../store/actions/lookupActions';
 
 interface ProfileState {
   isSlotChanged: boolean;
   isFormChanged: boolean;
   doctorId: string;
+  selectedState: string;
+  selectedCountry: string;
+  selectedCity: string;
   form: {
     firstName: string;
     lastName: string;
@@ -32,6 +36,9 @@ interface ProfileState {
     healthCardDetails?: string;
     healthHistory?: string;
     staffNumber?: string;
+    slotDates: {
+      [key: string]: any;
+    }
     slotAvailability: {
       [key: string]: boolean[];
     };
@@ -43,17 +50,22 @@ interface ProfileState {
 }
 
 interface ProfileProps {
+  getLookups: () => void,
   getProfile: () => void;
   updateProfile: (userData: any) => void;
   addSlots: (slotRequestBody: any) => void;
   role: string;
-  profileData: any; // New prop to store profile data fetched from Redux
+  profileData: any;
+  lookups: any;
 }
 
 class ProfileComponent extends Component<ProfileProps, ProfileState> {
   constructor(props: ProfileProps) {
     super(props);
     this.state = {
+      selectedCity: "",
+      selectedState: "",
+      selectedCountry: "",
       doctorId: "",
       isFormChanged: false,
       isSlotChanged: false,
@@ -79,6 +91,10 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         healthCardDetails: "",
         healthHistory: "",
         staffNumber: "",
+        slotDates: {
+          startDate: "",
+          endDate: ""
+        },
         slotAvailability: {
           Monday: [false, false, false, false],
           Tuesday: [false, false, false, false],
@@ -94,8 +110,36 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
     };
   }
 
+  handleCountryChange = (e: any) => {
+    const selectedCountry = e.target.value;
+    this.setState({
+      selectedCountry,
+      selectedState: "",
+      selectedCity: "",
+      form: { ...this.state.form, country: selectedCountry, state: "", city: "" }
+    });
+  };
+
+  handleStateChange = (e: any) => {
+    const selectedState = e.target.value;
+    this.setState({
+      selectedState,
+      selectedCity: "",
+      form: { ...this.state.form, state: selectedState, city: "" }
+    });
+  };
+
+  handleCityChange = (e: any) => {
+    const selectedCity = e.target.value;
+    this.setState({
+      selectedCity,
+      form: { ...this.state.form, city: selectedCity }
+    });
+  };
+
   componentDidMount() {
     this.props.getProfile();
+    this.props.getLookups()
   }
 
   componentDidUpdate(prevProps: ProfileProps) {
@@ -105,11 +149,9 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   }
 
   populateFormData = (profileData: any) => {
-    const { user, details } = profileData;
-    
-
+    let { user, details } = profileData;
+    details = details[0]
     const { address, ...userData } = user;
-    
 
     const formData = {
       firstName: userData.firstName || "",
@@ -147,6 +189,10 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         ? { healthHistory: details.healthHistory }
         : {}),
       ...(details?.staffNumber ? { staffNumber: details.staffNumber } : {}),
+      slotDates: {
+        startDate: new Date(details?.availableDates?.startDate).toISOString().split("T")[0] || '',
+        endDate: new Date(details?.availableDates?.endDate).toISOString().split("T")[0] || ''
+      },
       slotAvailability: (details?.availability && this.convertFormDataToSlotStructure(
         details?.availability
       )) || {
@@ -159,18 +205,20 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         Sunday: [false, false, false, false],
       },
     };
-
-    
     
     this.setState({
-      doctorId: details._id,
+      selectedCity: address.city,
+      selectedState: address.state,
+      selectedCountry: address.country,
+      doctorId: details?._id,
       form: formData,
     });
+
   };
 
   convertFormDataToSlotStructure = (slotAvailability: any) => {
-    
-    
+
+
     const dayToIndex: any = {
       Monday: 0,
       Tuesday: 1,
@@ -205,20 +253,47 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
 
   validateForm = () => {
     const { form } = this.state;
-    let errors: any = {};
-    let formIsValid = true;
+    const { errors, isSlotChanged } = this.state;
 
+    
     if (!form.firstName) {
-      errors.firstName = "First Name is required";
-      formIsValid = false;
+      errors.firstName = 'First Name is required.';
+    }
+    if (!form.lastName) {
+      errors.lastName = 'Last Name is required.';
     }
 
-    if (!form.lastName) {
-      errors.lastName = "Last Name is required";
-      formIsValid = false;
+    if (!form.contact_no) {
+      errors.contact_no = 'Phone Number is required.';
+    } else if (!/^\d{10}$/.test(form.contact_no)) {
+      errors.phoneNumber = 'Phone Number must be a 10-digit number.';
     }
+
+    
+    if (!form.yearsOfExperience) {
+      errors.yearsOfExperience = 'Years of Experience is required.';
+    } else if (isNaN(parseInt(form.yearsOfExperience)) || parseInt(form.yearsOfExperience) < 0) {
+      errors.yearsOfExperience = 'Years of Experience must be a positive number.';
+    }
+
+    if (isSlotChanged && !form.slotDates.startDate) {
+      errors.startDate = 'Start Date is required.';
+    } else if (new Date(form.slotDates.startDate) > new Date(form.slotDates.endDate)) {
+      errors.startDate = 'Start Date cannot be later than End Date.';
+    }
+
+    if (isSlotChanged && !form.slotDates.endDate) {
+      errors.endDate = 'End Date is required.';
+    } else if (new Date(form.slotDates.endDate) < new Date(form.slotDates.startDate)) {
+      errors.endDate = 'End Date cannot be earlier than Start Date.';
+    }
+
+    if (this.props.role === "FrontDesk" && !form.staffNumber) {
+      errors.staffNumber = 'Staff Number is required.';
+    }
+
     this.setState({ errors });
-    return formIsValid;
+    return Object.keys(errors).length === 0;
   };
 
   handleChange = (
@@ -268,7 +343,9 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   toggleEditMode = () => {
     this.setState((prevState) => ({
       isEditMode: !prevState.isEditMode,
-    }));
+    }), () => {
+      this.props.getProfile();
+    });
   };
 
   handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -287,6 +364,9 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         zip,
         contact_no,
         profilePhoto,
+        speciality,
+        licenseNumber,
+        yearsOfExperience,
         slotAvailability,
       } = this.state.form;
       const updateForm = {
@@ -298,8 +378,17 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
         contact_no,
         profilePhoto,
       };
-      if(isFormChanged){
-        this.props.updateProfile(updateForm);
+      let details: any = {}
+
+      if (this.props.role === 'Doctor') {
+        details['speciality'] = speciality
+        details['license_number'] = licenseNumber
+        details['yearsOfExperience'] = yearsOfExperience
+      } else if (this.props.role === 'FrontDesk') {
+        details['staff_number'] = licenseNumber
+      }
+      if (isFormChanged) {
+        this.props.updateProfile({ profileData: updateForm, details: details });
       }
       if (isSlotChanged) {
         this.generateSlotBodyRequest(slotAvailability);
@@ -309,19 +398,19 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
   };
 
   generateSlotBodyRequest(slotAvailability: { [key: string]: boolean[] }) {
-    
-    
+
+
     const date = new Date();
-    const startDate = new Date();
-    const endDate = new Date(date.setMonth(date.getMonth() + 1));
+    const startDate = this.state.form.slotDates.startDate;
+    const endDate = this.state.form.slotDates.endDate;
     const noOfMinPerSlot = 30;
     const slots = [];
     for (const day in slotAvailability) {
       const slotsArr = slotAvailability[day];
       const shouldNotSkip = slotsArr.some((val) => val === true);
-      
-      
-      
+
+
+
       let startTime = "";
       let endTime = "";
       if (shouldNotSkip) {
@@ -329,70 +418,70 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
           let obj: {
             [key: string]: Object;
           } = {};
-          obj["day"] = day;    
+          obj["day"] = day;
           startTime = "07:00";
           endTime = "11:00";
           obj["slot"] = {
             startTime: startTime,
             endTime: endTime,
           };
-          slots.push(obj);  
+          slots.push(obj);
         }
         if (slotsArr[1]) {
           let obj: {
             [key: string]: Object;
           } = {};
-          obj["day"] = day;    
+          obj["day"] = day;
           startTime = "11:00";
           endTime = "15:00";
           obj["slot"] = {
             startTime: startTime,
             endTime: endTime,
           };
-          slots.push(obj);  
+          slots.push(obj);
         }
         if (slotsArr[2]) {
           let obj: {
             [key: string]: Object;
           } = {};
-          obj["day"] = day;    
+          obj["day"] = day;
           startTime = "15:00";
           endTime = "19:00";
           obj["slot"] = {
             startTime: startTime,
             endTime: endTime,
           };
-          slots.push(obj);  
+          slots.push(obj);
         }
         if (slotsArr[3]) {
           let obj: {
             [key: string]: Object;
           } = {};
-          obj["day"] = day;    
+          obj["day"] = day;
           startTime = "19:00";
           endTime = "23:00";
           obj["slot"] = {
             startTime: startTime,
             endTime: endTime,
           };
-          slots.push(obj);  
+          slots.push(obj);
         }
       }
     }
     const reqBody = {
       doctorId: this.state.doctorId,
-      fromDate: startDate.toISOString(),
-      toDate: endDate.toISOString(),
+      fromDate: new Date(startDate).toISOString(),
+      toDate: new Date(endDate).toISOString(),
       noOfMinPerSlot: noOfMinPerSlot,
       slots: slots,
     };
-    
+
 
     this.props.addSlots(reqBody);
   }
 
   handleSlotChange = (day: string, newValue: boolean[]) => {
-    
+
     this.setState((prevState) => ({
       isSlotChanged: true,
       form: {
@@ -405,8 +494,32 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
     }));
   };
 
+  handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formState = this.state.form;
+    formState.slotDates.startDate = e.target.value;
+    this.setState({
+      isSlotChanged: true,
+      form: formState
+    })
+  };
+
+  handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formState = this.state.form;
+    formState.slotDates.endDate = e.target.value;
+    this.setState({
+      isSlotChanged: true,
+      form: formState
+    })
+  };
+
+
+
   render() {
-    const { form, errors, isEditMode } = this.state;
+    const { form, errors, isEditMode, selectedCountry, selectedState } = this.state;
+    const { lookups } = this.props;
+    const countryOptions = lookups?.lookupsByType['COUNTRY'] || [];
+    const stateOptions = selectedCountry ? lookups?.lookupsByParent[selectedCountry] || [] : [];
+    const cityOptions = selectedState ? lookups?.lookupsByParent[selectedState] || [] : [];
 
     return (
       <Container className="profile-container">
@@ -577,18 +690,24 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     </Form.Group>
                   </Col>
                   <Col md={6}>
-                    <Form.Group controlId="city">
-                      <Form.Label>City</Form.Label>
+                    <Form.Group controlId="country">
+                      <Form.Label>Country</Form.Label>
                       <Form.Control
-                        type="text"
-                        name="city"
-                        value={form.city}
-                        onChange={this.handleChange}
-                        isInvalid={!!errors.city}
+                        as="select"
+                        name="country"
+                        value={selectedCountry}
+                        onChange={(e) => this.handleCountryChange(e)}
                         disabled={!isEditMode}
-                      />
+                      >
+                        <option value="">Select Country</option>
+                        {countryOptions.map((country: any) => (
+                          <option key={country.id} value={country.value}>
+                            {country.value}
+                          </option>
+                        ))}
+                      </Form.Control>
                       <Form.Control.Feedback type="invalid">
-                        {errors.city}
+                        {errors.country}
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
@@ -598,18 +717,48 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     <Form.Group controlId="state">
                       <Form.Label>State</Form.Label>
                       <Form.Control
-                        type="text"
+                        as="select"
                         name="state"
-                        value={form.state}
-                        onChange={this.handleChange}
-                        isInvalid={!!errors.state}
-                        disabled={!isEditMode}
-                      />
+                        value={selectedState}
+                        onChange={this.handleStateChange}
+                        disabled={!isEditMode || !selectedCountry}
+                      >
+                        <option value="">Select State</option>
+                        {stateOptions.map((state: any) => (
+                          <option key={state.id} value={state.value}>
+                            {state.value}
+                          </option>
+                        ))}
+                      </Form.Control>
                       <Form.Control.Feedback type="invalid">
                         {errors.state}
                       </Form.Control.Feedback>
                     </Form.Group>
                   </Col>
+                  <Col md={6}>
+                    <Form.Group controlId="city">
+                      <Form.Label>City</Form.Label>
+                      <Form.Control
+                        as="select"
+                        name="city"
+                        value={form.city}
+                        onChange={this.handleCityChange}
+                        disabled={!isEditMode || !selectedState}
+                      >
+                        <option value="">Select City</option>
+                        {cityOptions.map((city: any) => (
+                          <option key={city.id} value={city.value}>
+                            {city.value}
+                          </option>
+                        ))}
+                      </Form.Control>
+                      <Form.Control.Feedback type="invalid">
+                        {errors.city}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
                   <Col md={6}>
                     <Form.Group controlId="zip">
                       <Form.Label>Zip code</Form.Label>
@@ -627,114 +776,136 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     </Form.Group>
                   </Col>
                 </Row>
-                <Row>
-                  <Col md={6}>
-                    <Form.Group controlId="country">
-                      <Form.Label>Country</Form.Label>
-                      <Form.Control
-                        type="text"
-                        name="country"
-                        value={form.country}
-                        onChange={this.handleChange}
-                        isInvalid={!!errors.country}
-                        disabled={!isEditMode}
-                      />
-                      <Form.Control.Feedback type="invalid">
-                        {errors.country}
-                      </Form.Control.Feedback>
-                    </Form.Group>
-                  </Col>
-                </Row>
                 {this.props.role === "Doctor" && (
                   <>
-                  <fieldset>
-                    <legend>Doctor Details</legend>
-                    <Row>
-                      <Col md={6}>
-                        <Form.Group controlId="licenseNumber">
-                          <Form.Label>License Number</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="licenseNumber"
-                            value={form.licenseNumber}
-                            onChange={this.handleChange}
-                            isInvalid={!!errors.licenseNumber}
-                            disabled={!isEditMode}
+                    <fieldset>
+                      <legend>Doctor Details</legend>
+                      <Row>
+                        <Col md={6}>
+                          <Form.Group controlId="licenseNumber">
+                            <Form.Label>License Number</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="licenseNumber"
+                              value={form.licenseNumber}
+                              onChange={this.handleChange}
+                              isInvalid={!!errors.licenseNumber}
+                              disabled={!isEditMode}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.licenseNumber}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group controlId="speciality">
+                            <Form.Label>Speciality</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="speciality"
+                              value={form.speciality}
+                              onChange={this.handleChange}
+                              isInvalid={!!errors.speciality}
+                              disabled={!isEditMode}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.speciality}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col md={6}>
+                          <Form.Group controlId="clinicName">
+                            <Form.Label>Clinic Name</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="clinicName"
+                              value={form.clinicName}
+                              onChange={this.handleChange}
+                              isInvalid={!!errors.clinicName}
+                              disabled={true}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.clinicName}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col md={6}>
+                          <Form.Group controlId="yearsOfExperience">
+                            <Form.Label>Years of Experience</Form.Label>
+                            <Form.Control
+                              type="text"
+                              name="yearsOfExperience"
+                              value={form.yearsOfExperience}
+                              onChange={this.handleChange}
+                              isInvalid={!!errors.yearsOfExperience}
+                              disabled={!isEditMode}
+                            />
+                            <Form.Control.Feedback type="invalid">
+                              {errors.yearsOfExperience}
+                            </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                      </Row>
+                    </fieldset>
+                    <Form.Group>
+                      <legend>Availability</legend>
+                      <br />
+                      <Row>
+                        <Col sm={5}>
+                          <Form.Group controlId="startDate">
+                            <Form.Label>
+                              Start Date
+                            </Form.Label>
+                              <Form.Control
+                                type="date"
+                                value={form.slotDates.startDate}
+                                onChange={this.handleStartDateChange}
+                                isInvalid={!!errors.startDate}
+                                disabled={!isEditMode}
+                              />
+                              <Form.Control.Feedback type="invalid">
+                                {errors.startDate}
+                              </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+                        <Col sm={1}></Col>
+                        <Col sm={5}>
+                          <Form.Group controlId="endDate">
+                            <Form.Label>
+                              End Date
+                            </Form.Label>
+                              <Form.Control
+                                type="date"
+                                value={form.slotDates.endDate}
+                                onChange={this.handleEndDateChange}
+                                isInvalid={!!errors.endDate}
+                                disabled={!isEditMode}
+                              />
+                              <Form.Control.Feedback type="invalid">
+                                {errors.endDate}
+                              </Form.Control.Feedback>
+                          </Form.Group>
+                        </Col>
+
+                      </Row>
+
+                      {Object.keys(form.slotAvailability).map((day) => (
+                        <div key={day}>
+                          <Form.Group>{day}</Form.Group>
+                          <SelectButtonGroup
+                            day={day}
+                            value={form.slotAvailability[day]}
+                            onChange={(day, newValue) =>
+                              this.handleSlotChange(day, newValue)
+                            }
+                            disabled={!this.state.isEditMode}
                           />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.licenseNumber}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group controlId="speciality">
-                          <Form.Label>Speciality</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="speciality"
-                            value={form.speciality}
-                            onChange={this.handleChange}
-                            isInvalid={!!errors.speciality}
-                            disabled={!isEditMode}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.speciality}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col md={6}>
-                        <Form.Group controlId="clinicName">
-                          <Form.Label>Clinic Name</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="clinicName"
-                            value={form.clinicName}
-                            onChange={this.handleChange}
-                            isInvalid={!!errors.clinicName}
-                            disabled={true}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.clinicName}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-                      <Col md={6}>
-                        <Form.Group controlId="yearsOfExperience">
-                          <Form.Label>Years of Experience</Form.Label>
-                          <Form.Control
-                            type="text"
-                            name="yearsOfExperience"
-                            value={form.yearsOfExperience}
-                            onChange={this.handleChange}
-                            isInvalid={!!errors.yearsOfExperience}
-                            disabled={!isEditMode}
-                          />
-                          <Form.Control.Feedback type="invalid">
-                            {errors.yearsOfExperience}
-                          </Form.Control.Feedback>
-                        </Form.Group>
-                      </Col>
-                    </Row>
-                  </fieldset>
-                                    <Form.Group>
-                                    <legend>Availability</legend>                
-                                  {Object.keys(form.slotAvailability).map((day) => (
-                                    <div key={day}>
-                                      <Form.Group>{day}</Form.Group>
-                                      <SelectButtonGroup
-                                        day={day}
-                                        value={form.slotAvailability[day]}
-                                        onChange={(day, newValue) =>
-                                          this.handleSlotChange(day, newValue)
-                                        }
-                                        disabled={!this.state.isEditMode}
-                                      />
-                                    </div>
-                                  ))}
-                                  </Form.Group>
-                                  </>                  
+                        </div>
+                      ))}
+                    </Form.Group>
+                  </>
                 )}
                 {this.props.role === "FrontDesk" && (
                   <fieldset>
@@ -796,7 +967,7 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
                     </Form.Group>
                   </fieldset>
                 )}
-                <br/>
+                <br />
                 {isEditMode && (
                   <div className="edit-buttons">
                     <Button
@@ -823,13 +994,15 @@ class ProfileComponent extends Component<ProfileProps, ProfileState> {
 
 const mapStateToProps = (state: any) => ({
   role: state?.auth?.role,
-  profileData: state?.profile?.profileData
+  profileData: state?.profile?.profileData,
+  lookups: state?.lookupData
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
   getProfile: () => dispatch(getProfileRequest()),
   updateProfile: (userData: any) => dispatch(updateProfileRequest(userData)),
-  addSlots: (addSlotsRequestBody: any) => dispatch(addSlotsRequest(addSlotsRequestBody))
+  addSlots: (addSlotsRequestBody: any) => dispatch(addSlotsRequest(addSlotsRequestBody)),
+  getLookups: () => dispatch(getLookupsRequest()),
 });
 
 

@@ -17,7 +17,7 @@ const ProtectedRouteComponent: React.FC<ProtectedRouteProps> = ({ component: Com
   const isRole = role && role?.length > 0;
   const path = location.pathname;
   const basePath: string = path.split('/')[1]
-  const roleMapped = PathToRoleMappings[basePath]
+  const roleMapped = (basePath!=='' && basePath!=='/') ? PathToRoleMappings[basePath]: ['Patient']
   const isValidPath = role ? roleMapped.includes(role): false;
   let prevRole = undefined;
   let link = undefined;
@@ -29,7 +29,7 @@ const ProtectedRouteComponent: React.FC<ProtectedRouteProps> = ({ component: Com
   return (isAuthenticated && isToken && isRole && isValidPath) ? (
     <Component {...rest} location={location} />
   ) : (
-    <Navigate to={link ? link : "/client/auth"} state={{ from: location }} />
+    <Navigate to={link ? link : "/auth"} state={{ from: location }} />
   );
 };
 

@@ -36,7 +36,7 @@ class AdminAuthScreen extends Component<AdminAuthScreenProps, AdminAuthScreenSta
   };
 
   handleVerification = (status: boolean) => {
-    console.log("handleVerification: ", status);
+    
   }
 
   render() {
