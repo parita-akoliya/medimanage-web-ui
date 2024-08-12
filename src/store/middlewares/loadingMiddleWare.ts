@@ -3,7 +3,7 @@ import { setLoading } from '../actions/loadingActions';
 import { RootState } from '../reducers';
 
 const loadingMiddleware: Middleware<{}, RootState> = store => next => action => {
-  console.log(action);
+  
   
   const isAsyncAction = action.type.endsWith('_REQUEST') || action.type.endsWith('_SUCCESS') || action.type.endsWith('_FAILURE');
 

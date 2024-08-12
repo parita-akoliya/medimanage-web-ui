@@ -72,15 +72,12 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
   };
 
   navigationToProfile = (data: any) => {
-    this.props.navigate(`/client/doctor-clinic-info/${data._id}`, { state: { data } });
+    this.props.navigate(`/info/doctor/${data._id}`, { state: { data } });
   };
 
   render() {
     const { doctors } = this.props;
     const { searchName, searchCity, searchSpeciality } = this.state;
-
-    console.log(doctors);
-    
 
     return (
       <Container className="find-doctor-container">
@@ -123,7 +120,7 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
             <Col md={4} key={doctor._id} className="mb-4">
               <Card className="doctor-card">
                 <div className="doctor-image-wrapper">
-                  <Card.Img variant="top" src={doctor.image ? doctor.image : doctor1} className="doctor-image" />
+                  <Card.Img variant="top" src={doctor.user.profilePhoto ? doctor.user.profilePhoto : doctor1} className="doctor-image" />
                 </div>
                 <Card.Body>
                   <Card.Title>{doctor.user.firstName} {doctor.user.lastName}</Card.Title>
@@ -153,7 +150,7 @@ class FindDoctor extends Component<FindDoctorProps, FindDoctorState> {
 }
 
 const mapStateToProps = (state: any) => ({
-  doctors: state.doctors.doctors, // Adjust this based on where the searched doctors are stored
+  doctors: state.doctors.doctors, 
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

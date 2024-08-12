@@ -1,4 +1,4 @@
-import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, FILTER_SLOTS_FAILURE, FILTER_SLOTS_REQUEST, FILTER_SLOTS_SUCCESS, GET_APPOINTMENT_FAILURE, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE, UPDATE_APPOINTMENT_REQUEST, UPDATE_APPOINTMENT_SUCCESS } from "../types/slotTypes";
+import { ADD_SLOTS_FAILURE, ADD_SLOTS_REQUEST, ADD_SLOTS_SUCCESS, ATTEND_APPOINTMENT_REQUEST, AVAILABLE_SLOTS_FAILURE, AVAILABLE_SLOTS_REQUEST, AVAILABLE_SLOTS_SUCCESS, FILTER_SLOTS_FAILURE, FILTER_SLOTS_REQUEST, FILTER_SLOTS_SUCCESS, GET_APPOINTMENT_FAILURE, GET_APPOINTMENT_REQUEST, GET_APPOINTMENT_SUCCESS, GET_APPOINTMENTS_FAILURE, GET_APPOINTMENTS_REQUEST, GET_APPOINTMENTS_SUCCESS, SCHEDULE_APPOINTMENT_FAILURE, SCHEDULE_APPOINTMENT_REQUEST, SCHEDULE_APPOINTMENT_SUCCESS, UPDATE_APPOINTMENT_FAILURE, UPDATE_APPOINTMENT_REQUEST, UPDATE_APPOINTMENT_SUCCESS } from "../types/slotTypes";
 
 export const addSlotsRequest = (query: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
     type: ADD_SLOTS_REQUEST,
@@ -68,8 +68,26 @@ export const scheduleAppointmentFailure = (error: any) => ({
     payload: error
 });
 
-export const getAppointmentRequest = (onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+export const getAppointmentsRequest = (onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: GET_APPOINTMENTS_REQUEST,
+    callbacks: {onCallSuccess,
+    onCallFail}
+});
+
+export const getAppointmentsSuccess = (data: any) => ({
+    type: GET_APPOINTMENTS_SUCCESS,
+    payload: data
+});
+
+export const getAppointmentsFailure = (error: any) => ({
+    type: GET_APPOINTMENTS_FAILURE,
+    payload: error
+});
+
+
+export const getAppointmentRequest = (appointmentId: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
     type: GET_APPOINTMENT_REQUEST,
+    payload: appointmentId,
     callbacks: {onCallSuccess,
     onCallFail}
 });
@@ -101,3 +119,19 @@ export const updateAppointmentFailure = (error: any) => ({
     payload: error
 });
 
+export const attendAppointmentRequest = (data: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: ATTEND_APPOINTMENT_REQUEST,
+    payload: data,
+    callbacks: {onCallSuccess,
+    onCallFail}
+});
+
+export const attendAppointmentSuccess = (data: any) => ({
+    type: GET_APPOINTMENT_SUCCESS,
+    payload: data
+});
+
+export const attemdAppointmentFailure = (error: any) => ({
+    type: GET_APPOINTMENT_FAILURE,
+    payload: error
+});

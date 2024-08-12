@@ -7,6 +7,7 @@ import profile from './profileReducers';
 import clinic from './clinicReducers';
 import doctors from './doctorReducers';
 import appointments from './appointmentReducers';
+import lookupData from './lookupReducers';
 
 export interface RootState {
     auth: AuthState;
@@ -20,7 +21,8 @@ const rootReducer = combineReducers({
     loading,
     clinic,
     doctors,
-    appointments
+    appointments,
+    lookupData
 });
 
 export default rootReducer;

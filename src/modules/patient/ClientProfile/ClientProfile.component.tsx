@@ -1,8 +1,10 @@
-import React, { Component } from 'react';
-import { Container, Row, Col, Nav, Tab, Card, Button, Form } from 'react-bootstrap';
+import { Component } from 'react';
+import { Container, Row, Col, Card, Button, Form, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import { getProfileRequest, updateProfileRequest } from '../../../store/actions/profileActions';
+import { PencilSquare, XCircle, KeyFill } from 'react-bootstrap-icons';
 import './ClientProfile.css';
+import { forgotPasswordRequest, logoutRequest } from '../../../store/actions/authActions';
 
 interface ClientProfileState {
   activeTab: string;
@@ -10,20 +12,37 @@ interface ClientProfileState {
     firstName: string;
     lastName: string;
     email: string;
+    dob: string;
+    gender: string;
+    contact_no: string;
   };
   appointments: any[];
   isEditingProfile: boolean;
   selectedAppointment: any | null;
+  showChangePasswordModal: boolean;
   errors: {
     firstName: string;
     email: string;
     lastName: string;
+    dob: string;
+    gender: string;
+    contact_no: string;
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
+  };
+  passwordDetails: {
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
   };
 }
 
 interface ClientProfileProps {
   getProfile: () => void;
   updateProfile: (userData: any) => void;
+  forgotPasswordRequest: (email: string, onCallSuccess?: Function) => void;
+  logOut: () => void;
   profileData: any;
 }
 
@@ -33,17 +52,32 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
     this.state = {
       activeTab: 'details',
       patientDetails: {
+        dob: '',
+        gender: '',
         firstName: '',
         lastName: '',
-        email: ''
+        email: '',
+        contact_no: ''
       },
       appointments: [],
       isEditingProfile: false,
       selectedAppointment: null,
+      showChangePasswordModal: false,
       errors: {
+        dob: '',
+        gender: '',
         firstName: '',
         email: '',
-        lastName: ''
+        lastName: '',
+        contact_no: '',
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      },
+      passwordDetails: {
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
       }
     };
   }
@@ -54,25 +88,17 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
 
   componentDidUpdate(prevProps: ClientProfileProps): void {
     if (prevProps.profileData !== this.props.profileData) {
-      console.log("dfvkdfnjkdn");
-      
-      const { user, details } = this.props.profileData;
-      const transformedAppointments = details.map((detail: any) => ({
-        id: detail._id,
-        description: detail.reason,
-        status: detail.status,
-        doctorName: detail.doctor_id,
-        start_time: detail?.slot_id!==null ? new Date(detail?.slot_id?.start_time).toLocaleTimeString(): "",
-        end_time: detail?.slot_id!==null ? new Date(detail?.slot_id?.end_time).toLocaleTimeString():"",
-      }));
+      const { user } = this.props.profileData;
 
       this.setState({
         patientDetails: {
           firstName: user.firstName,
           lastName: user.lastName,
-          email: user.email
-        },
-        appointments: transformedAppointments
+          email: user.email,
+          dob: user.dob || '',
+          gender: user.gender || '',
+          contact_no: user.contact_no || ''
+        }
       });
     }
   }
@@ -85,7 +111,7 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
     this.setState(prevState => ({ isEditingProfile: !prevState.isEditingProfile }));
   };
 
-  handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  handleProfileChange = (e: any) => {
     this.setState({
       patientDetails: {
         ...this.state.patientDetails,
@@ -98,10 +124,17 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
     const errors = {
       firstName: '',
       email: '',
-      lastName: ''
+      lastName: '',
+      dob: '',
+      gender: '',
+      contact_no: '',
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
     };
     let isValid = true;
 
+    
     if (!this.state.patientDetails.firstName) {
       errors.firstName = 'First Name is required';
       isValid = false;
@@ -117,6 +150,18 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
       errors.lastName = 'Last Name is required';
       isValid = false;
     }
+    if (!this.state.patientDetails.dob) {
+      errors.dob = 'Date of Birth is required';
+      isValid = false;
+    }
+    if (!this.state.patientDetails.gender) {
+      errors.gender = 'Gender is required';
+      isValid = false;
+    }
+    if (!this.state.patientDetails.contact_no) {
+      errors.contact_no = 'Contact Number is required';
+      isValid = false;
+    }
 
     this.setState({ errors });
     return isValid;
@@ -129,256 +174,252 @@ class ClientProfile extends Component<ClientProfileProps, ClientProfileState> {
     }
   };
 
-  selectAppointmentForEdit = (appointment: any) => {
-    this.setState({ selectedAppointment: appointment });
+  validatePasswordChange = () => {
+    const errors = {
+      firstName: '',
+      email: '',
+      lastName: '',
+      dob: '',
+      gender: '',
+      contact_no: '',
+      currentPassword: '',
+      newPassword: '',
+      confirmNewPassword: ''
+    };
+    let isValid = true;
+
+    
+    if (!this.state.passwordDetails.currentPassword) {
+      errors.currentPassword = 'Current Password is required';
+      isValid = false;
+    }
+    if (!this.state.passwordDetails.newPassword) {
+      errors.newPassword = 'New Password is required';
+      isValid = false;
+    } else if (this.state.passwordDetails.newPassword.length < 6) {
+      errors.newPassword = 'New Password must be at least 6 characters long';
+      isValid = false;
+    }
+    if (this.state.passwordDetails.newPassword !== this.state.passwordDetails.confirmNewPassword) {
+      errors.confirmNewPassword = 'Passwords do not match';
+      isValid = false;
+    }
+
+    this.setState({ errors });
+    return isValid;
   };
 
-  handleAppointmentEditChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (this.state.selectedAppointment) {
-      this.setState({
-        selectedAppointment: {
-          ...this.state.selectedAppointment,
-          [e.target.name]: e.target.value
-        }
-      });
+  savePassword = () => {
+    if (this.validatePasswordChange()) {
+      
+      this.closeChangePasswordModal();
     }
   };
 
-  // saveAppointment = () => {
-  //   if (this.state.selectedAppointment) {
-  //     this.setState({
-  //       appointments: this.state.appointments.map(app =>
-  //         app.id === this.state.selectedAppointment?.id
-  //           ? this.state.selectedAppointment
-  //           : app
-  //       ),
-  //       selectedAppointment: null
-  //     });
-  //   }
-  // };
+  resetPassword = (email: string) => {
+    this.props.forgotPasswordRequest(email, () => {
+      this.props.logOut()
+    })
+  };
+
+  closeChangePasswordModal = () => {
+    this.setState({
+      showChangePasswordModal: false,
+      passwordDetails: {
+        currentPassword: '',
+        newPassword: '',
+        confirmNewPassword: ''
+      }
+    });
+  };
+
+  handlePasswordChange = (e: any) => {
+    this.setState({
+      passwordDetails: {
+        ...this.state.passwordDetails,
+        [e.target.name]: e.target.value
+      }
+    });
+  };
 
   render() {
-    const { activeTab, patientDetails, appointments, isEditingProfile, selectedAppointment, errors } = this.state;
-    console.log(patientDetails);
-    
+    const {
+      patientDetails,
+      isEditingProfile,
+      errors    } = this.state;
+
     return (
       <Container className="client-profile-container">
-        <Tab.Container id="left-tabs-example" activeKey={activeTab}>
-          <Row className="profile-header">
-            <Col sm={12}>
-              <Nav variant="tabs" className="justify-content-center">
-                <Nav.Item>
-                  <Nav.Link eventKey="details" onClick={() => this.handleTabSelect('details')}>
-                    My Profile
-                  </Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                  <Nav.Link eventKey="appointments" onClick={() => this.handleTabSelect('appointments')}>
-                    Appointments
-                  </Nav.Link>
-                </Nav.Item>
-              </Nav>
-            </Col>
-          </Row>
-          <Row>
-            <Col sm={12}>
-              <Tab.Content>
-                <Tab.Pane eventKey="details">
-                  <Container className="profile-container">
-                    <div className="profile-header">
-                      <h2 className="text-center">My Profile</h2>
-                      {/* <Button
-                        variant={isEditingProfile ? 'secondary' : 'primary'}
-                        className="edit-profile-btn"
-                        onClick={this.toggleEditProfile}
-                      >
-                        {isEditingProfile ? 'Cancel' : 'Edit Profile'}
-                      </Button> */}
-                      {isEditingProfile && (
+        <Row className="profile-header">
+          <Col sm={12}>
+            My Profile
+          </Col>
+        </Row>
+        <Row>
+          <Col sm={12}>
+            <Container className="profile-container">
+              <div className="profile-header">
+                <h2 className="text-center">My Profile</h2>
+                <div className="profile-actions">
+                  {isEditingProfile ? (
+                    <>
+                      <OverlayTrigger overlay={<Tooltip>Cancel</Tooltip>}>
+                        <Button
+                          variant="secondary"
+                          className="edit-profile-btn"
+                          onClick={this.toggleEditProfile}
+                        >
+                          <XCircle />
+                        </Button>
+                      </OverlayTrigger>
+                      <OverlayTrigger overlay={<Tooltip>Save Changes</Tooltip>}>
                         <Button
                           variant="primary"
                           className="save-profile-btn"
+                          style={{ marginLeft: '12px' }}
                           onClick={this.saveProfile}
                         >
                           Save Changes
                         </Button>
-                      )}
-                    </div>
-                    <div className="profile-content">
-                      <Row>
-                        <Col md={4}>
-                          <div className="profile-avatar">
-                            <div className="profile-avatar-placeholder">
-                              <i className="bi bi-person-circle"></i>
-                            </div>
-                          </div>
-                        </Col>
-                        <Col md={8}>
-                          <Form className="profile-form">
-                            <Row>
-                              <Col md={6}>
-                                <Form.Group controlId="formFirstName">
-                                  <Form.Label>First Name</Form.Label>
-                                  <Form.Control
-                                    type="text"
-                                    name="firstName"
-                                    value={patientDetails.firstName}
-                                    onChange={this.handleProfileChange}
-                                    isInvalid={!!errors.firstName}
-                                    readOnly={!isEditingProfile}
-                                  />
-                                  <Form.Control.Feedback type="invalid">
-                                    {errors.firstName}
-                                  </Form.Control.Feedback>
-                                </Form.Group>
-                              </Col>
-                              <Col md={6}>
-                                <Form.Group controlId="formEmail">
-                                  <Form.Label>Email</Form.Label>
-                                  <Form.Control
-                                    type="email"
-                                    name="email"
-                                    value={patientDetails.email}
-                                    onChange={this.handleProfileChange}
-                                    isInvalid={!!errors.email}
-                                    readOnly={!isEditingProfile}
-                                  />
-                                  <Form.Control.Feedback type="invalid">
-                                    {errors.email}
-                                  </Form.Control.Feedback>
-                                </Form.Group>
-                              </Col>
-                            </Row>
-                            <Row>
-                              <Col md={6}>
-                                <Form.Group controlId="formLastName">
-                                  <Form.Label>Last Name</Form.Label>
-                                  <Form.Control
-                                    type="text"
-                                    name="lastName"
-                                    value={patientDetails.lastName}
-                                    onChange={this.handleProfileChange}
-                                    isInvalid={!!errors.lastName}
-                                    readOnly={!isEditingProfile}
-                                  />
-                                  <Form.Control.Feedback type="invalid">
-                                    {errors.lastName}
-                                  </Form.Control.Feedback>
-                                </Form.Group>
-                              </Col>
-                            </Row>
-                          </Form>
-                        </Col>
-                      </Row>
-                    </div>
-                  </Container>
-                </Tab.Pane>
-                <Tab.Pane eventKey="appointments">
-                  <Card className="appointments-card">
-                    <Card.Body>
-                      <Card.Title>Appointments</Card.Title>
-                      {appointments.length === 0 ? (
-                        <Card.Text>No appointments scheduled.</Card.Text>
-                      ) : (
-                        <ul className="appointment-list">
-                          {appointments.map(appointment => (
-                            <li key={appointment.id}>
-                              <strong>{appointment?.start_time}</strong> to {appointment?.end_time} - {appointment.description}
-                              {/* <Button variant="link" onClick={() => this.selectAppointmentForEdit(appointment)}>
-                                Edit
-                              </Button> */}
-                              {/* <Button
-                                variant="danger"
-                                onClick={() => this.cancelAppointment(appointment.id)}
-                                className="cancel-appointment-btn"
-                              >
-                                <XCircle />
-                              </Button> */}
-                              {selectedAppointment && selectedAppointment.id === appointment.id && (
-                                <Form className="appointment-edit-form">
-                                  <Form.Group controlId="formAppointmentDate">
-                                    <Form.Label>Date</Form.Label>
-                                    <Form.Control
-                                      type="date"
-                                      name="date"
-                                      value={selectedAppointment.date}
-                                      onChange={this.handleAppointmentEditChange}
-                                    />
-                                  </Form.Group>
-                                  <Form.Group controlId="formAppointmentTime">
-                                    <Form.Label>Time</Form.Label>
-                                    <Form.Control
-                                      type="time"
-                                      name="time"
-                                      value={selectedAppointment.time}
-                                      onChange={this.handleAppointmentEditChange}
-                                    />
-                                  </Form.Group>
-                                  <Form.Group controlId="formAppointmentDescription">
-                                    <Form.Label>Description</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      name="description"
-                                      value={selectedAppointment.description}
-                                      onChange={this.handleAppointmentEditChange}
-                                    />
-                                  </Form.Group>
-                                  <Form.Group controlId="formAppointmentStatus">
-                                    <Form.Label>Status</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      name="status"
-                                      value={selectedAppointment.status}
-                                      onChange={this.handleAppointmentEditChange}
-                                    />
-                                  </Form.Group>
-                                  <Form.Group controlId="formAppointmentDoctorName">
-                                    <Form.Label>Doctor Name</Form.Label>
-                                    <Form.Control
-                                      type="text"
-                                      name="doctorName"
-                                      value={selectedAppointment.doctorName}
-                                      onChange={this.handleAppointmentEditChange}
-                                    />
-                                  </Form.Group>
-                                  {/* <Button
-                                    variant="primary"
-                                    onClick={this.saveAppointment}
-                                  >
-                                    Save
-                                  </Button>
-                                  <Button
-                                    variant="secondary"
-                                    onClick={() => this.setState({ selectedAppointment: null })}
-                                  >
-                                    Cancel
-                                  </Button> */}
-                                </Form>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </Card.Body>
-                  </Card>
-                </Tab.Pane>
+                      </OverlayTrigger>
+                    </>
+                  ) : (
+                    <OverlayTrigger overlay={<Tooltip>Edit Profile</Tooltip>}>
+                      <Button
+                        variant="primary"
+                        className="edit-profile-btn"
+                        style={{ marginLeft: '12px' }}
+                        onClick={this.toggleEditProfile}
+                      >
+                        <PencilSquare />
+                      </Button>
+                    </OverlayTrigger>
+                  )}
+                  <OverlayTrigger overlay={<Tooltip>Reset Password</Tooltip>}>
+                    <Button variant="" onClick={() => this.resetPassword(patientDetails.email)} style={{ marginLeft: '12px' }}
+                    >
+                      <KeyFill /> Reset Password
+                    </Button>
+                  </OverlayTrigger>
+                </div>
+              </div>
+              <Card className="profile-card">
+                <Card.Body>
+                  <Form>
+                    <Form.Group controlId="firstName">
+                      <Form.Label>First Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="firstName"
+                        value={patientDetails.firstName}
+                        onChange={this.handleProfileChange}
+                        readOnly={!isEditingProfile}
+                        isInvalid={!!errors.firstName}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.firstName}
+                      </Form.Control.Feedback>
+                    </Form.Group>
 
-              </Tab.Content>
-            </Col>
-          </Row>
-        </Tab.Container>
+                    <Form.Group controlId="lastName">
+                      <Form.Label>Last Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="lastName"
+                        value={patientDetails.lastName}
+                        onChange={this.handleProfileChange}
+                        readOnly={!isEditingProfile}
+                        isInvalid={!!errors.lastName}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.lastName}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group controlId="email">
+                      <Form.Label>Email</Form.Label>
+                      <Form.Control
+                        type="email"
+                        name="email"
+                        value={patientDetails.email}
+                        onChange={this.handleProfileChange}
+                        readOnly
+                        isInvalid={!!errors.email}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.email}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group controlId="dob">
+                      <Form.Label>Date of Birth</Form.Label>
+                      <Form.Control
+                        type="date"
+                        name="dob"
+                        value={patientDetails.dob}
+                        onChange={this.handleProfileChange}
+                        readOnly={!isEditingProfile}
+                        isInvalid={!!errors.dob}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.dob}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group controlId="gender">
+                      <Form.Label>Gender</Form.Label>
+                      <Form.Control
+                        as="select"
+                        name="gender"
+                        value={patientDetails.gender}
+                        onChange={this.handleProfileChange}
+                        readOnly={!isEditingProfile}
+                        isInvalid={!!errors.gender}
+                      >
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                      </Form.Control>
+                      <Form.Control.Feedback type="invalid">
+                        {errors.gender}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+
+                    <Form.Group controlId="contact_no">
+                      <Form.Label>Contact Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        name="contact_no"
+                        value={patientDetails.contact_no}
+                        onChange={this.handleProfileChange}
+                        readOnly={!isEditingProfile}
+                        isInvalid={!!errors.contact_no}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.contact_no}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Form>
+                </Card.Body>
+              </Card>
+            </Container>
+          </Col>
+        </Row>
       </Container>
     );
   }
 }
 
 const mapStateToProps = (state: any) => ({
-  profileData: state.profile.profileData
+  profileData: state.profile.profileData,
 });
 
-const mapDispatchToProps = (dispatch: any) => ({
-  getProfile: () => dispatch(getProfileRequest()),
-  updateProfile: (userData: any) => dispatch(updateProfileRequest(userData))
-});
+const mapDispatchToProps = {
+  getProfile: getProfileRequest,
+  updateProfile: updateProfileRequest,
+  forgotPasswordRequest: forgotPasswordRequest,
+  logOut: logoutRequest,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ClientProfile);

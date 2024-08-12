@@ -1,0 +1,69 @@
+.appointment-history-card {
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 0 1rem rgba(0, 0, 0, 0.1);
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.accordion-toggle {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: #007bff;
+  font-size: 1.25rem;
+}
+
+.accordion-toggle:hover {
+  color: #0056b3;
+}
+
+.accordion-content {
+  background: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 1rem;
+}
+
+.accordion-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  height: 200px; /* Fixed height */
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin: 0.5rem;
+}
+
+.accordion-card .card-body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.icon-wrapper {
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.accordion-card h5 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.accordion-card ul {
+  padding-left: 1.25rem;
+  margin-bottom: 0;
+}
+
+.accordion-card p {
+  margin-bottom: 0;
+}
+
+.accordion-card + .accordion-card {
+  margin-top: 1rem;
+}

@@ -45,7 +45,7 @@ class AuthScreen extends Component<AuthScreenProps, AuthScreenState> {
   };
 
   handleVerification = (status: boolean) => {
-    console.log("handleVerification: ", status);
+    
   }
 
   render() {

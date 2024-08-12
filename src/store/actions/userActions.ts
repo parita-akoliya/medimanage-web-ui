@@ -5,9 +5,6 @@ import {
     UPDATE_EMAIL_REQUEST,
     UPDATE_EMAIL_SUCCESS,
     UPDATE_EMAIL_FAILURE,
-    RESET_PASSWORD_REQUEST,
-    RESET_PASSWORD_SUCCESS,
-    RESET_PASSWORD_FAILURE,
     GET_USER_REQUEST,
     GET_USER_SUCCESS,
     GET_USER_FAILURE,
@@ -20,6 +17,12 @@ import {
     UPDATE_USER_REQUEST,
     UPDATE_USER_SUCCESS,
     UPDATE_USER_FAILURE,
+    DASHBOARD_REQUEST,
+    DASHBOARD_SUCCESS,
+    DASHBOARD_FAILURE,
+    ADMIN_RESET_PASSWORD_FAILURE,
+    ADMIN_RESET_PASSWORD_REQUEST,
+    ADMIN_RESET_PASSWORD_SUCCESS,
 } from "../types/userTypes";
 
 export const changeRoleRequest = (payload: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
@@ -58,20 +61,20 @@ export const updateEmailFailure = (error: string, onCallSuccess?: Function | voi
     callbacks: { onCallSuccess, onCallFail }
 });
 
-export const resetPasswordRequest = (payload: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
-    type: RESET_PASSWORD_REQUEST,
+export const adminResetPasswordRequest = (payload: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: ADMIN_RESET_PASSWORD_REQUEST,
     payload,
     callbacks: { onCallSuccess, onCallFail }
 });
 
-export const resetPasswordSuccess = (payload: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
-    type: RESET_PASSWORD_SUCCESS,
+export const adminResetPasswordSuccess = (payload: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: ADMIN_RESET_PASSWORD_SUCCESS,
     payload,
     callbacks: { onCallSuccess, onCallFail }
 });
 
-export const resetPasswordFailure = (error: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
-    type: RESET_PASSWORD_FAILURE,
+export const adminResetPasswordFailure = (error: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: ADMIN_RESET_PASSWORD_FAILURE,
     error,
     callbacks: { onCallSuccess, onCallFail }
 });
@@ -143,6 +146,23 @@ export const updateUserSuccess = (updatedData: any, onCallSuccess?: Function | v
 
 export const updateUserFailure = (error: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
     type: UPDATE_USER_FAILURE,
+    error,
+    callbacks: { onCallSuccess, onCallFail }
+});
+
+export const dashboardRequest = (onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: DASHBOARD_REQUEST,
+    callbacks: { onCallSuccess, onCallFail }
+});
+
+export const dashboardSuccess = (dashboardData: any, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: DASHBOARD_SUCCESS,
+    payload: dashboardData,
+    callbacks: { onCallSuccess, onCallFail }
+});
+
+export const dashboardFailure = (error: string, onCallSuccess?: Function | void, onCallFail?: Function | void) => ({
+    type: DASHBOARD_FAILURE,
     error,
     callbacks: { onCallSuccess, onCallFail }
 });

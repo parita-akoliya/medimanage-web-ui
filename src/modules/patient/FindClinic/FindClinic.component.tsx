@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Container, Row, Col, Card, Form, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './FindClinic.css';
-import { searchClinicsRequest } from '../../../store/actions/searchActions'; // Adjust the import path
+import { searchClinicsRequest } from '../../../store/actions/searchActions'; 
 import { getAllClinicRequest } from '../../../store/actions/clinicActions';
 import { useNavigate, useParams } from 'react-router';
 
@@ -73,7 +73,7 @@ class FindClinic extends Component<FindClinicProps, FindClinicState> {
   };
 
   navigationToProfile = (clinic: Clinic) => {
-    this.props.navigate(`/client/find-doctor/clinic/${clinic._id}`, { state: { clinic } });
+    this.props.navigate(`/doctor/clinic/${clinic._id}`, { state: { clinic } });
   };
 
   setSearchName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,8 +86,6 @@ class FindClinic extends Component<FindClinicProps, FindClinicState> {
 
   render() {
     const { clinics } = this.props;
-    console.log(clinics, this.state);
-    
     const { searchName, searchCity } = this.state;
 
     const filteredClinics = (searchName!=='' || searchCity !== '') ? clinics?.filter((clinic: any) => {
@@ -96,8 +94,6 @@ class FindClinic extends Component<FindClinicProps, FindClinicState> {
         clinic?.address?.city?.toLowerCase().includes(searchCity?.toLowerCase())
       );
     }) : clinics;
-    console.log(filteredClinics);
-    
 
     return (
       <Container className="find-clinic-container">
@@ -161,7 +157,7 @@ class FindClinic extends Component<FindClinicProps, FindClinicState> {
 }
 
 const mapStateToProps = (state: any) => ({
-  clinics: state?.clinic?.clinics // Adjust based on how clinics are stored in Redux state
+  clinics: state?.clinic?.clinics 
 });
 
 const mapDispatchToProps = (dispatch: any) => ({

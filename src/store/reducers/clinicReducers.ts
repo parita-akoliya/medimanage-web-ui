@@ -36,7 +36,7 @@ const clinic = (state = initialState, action: any): ClinicState => {
         case DELETE_CLINIC_SUCCESS:
             return {
                 ...state,
-                clinics: undefined, // Assuming deletion removes data from state
+                clinics: undefined, 
                 error: null,
             };
         case GET_CLINIC_DETAILS_SUCCESS:
